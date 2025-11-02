@@ -30,7 +30,7 @@ pnpm preview                          # Preview production build
 1. **Radical Detection with cnchar**: Uses the `cnchar` library to dynamically extract radicals from characters, NOT the static `radicals` field from chinese-xinhua data. This is critical - always use `cnchar.radical(char)` for radical operations.
 
 2. **Data Sources**:
-   - `chinese-xinhua` submodule: Provides character data (word, pinyin, explanation) via `/chinese-xinhua/data/word.json`
+   - `chinese-xinhua` submodule: Provides character data (word, pinyin, explanation) via `/chinese-xinhua/word.json` (symlink points to data directory only)
    - `cnchar`: Provides accurate radical detection at runtime
    - Data is fetched once and cached in module-level variables
 
@@ -59,7 +59,7 @@ pnpm preview                          # Preview production build
 
 - When adding new character display logic, always use `cnchar.radical(character.word)` for radical, never `character.radicals`
 - Search is automatically triggered when users toggle radicals - don't add manual search buttons
-- The `public/chinese-xinhua` is a symlink to the submodule; ensure it exists when setting up the project
+- The `public/chinese-xinhua` is a symlink to `chinese-xinhua/data` directory (not the entire submodule), exposing only JSON data files
 - Favorites use the full `ChineseCharacter` object, not just the word string
 
 ## Development Workflow
