@@ -20,7 +20,8 @@
 - **UI 组件库**：shadcn/ui + Tailwind CSS
 - **状态管理**：Zustand
 - **代码质量**：Biome (格式化 + Lint)
-- **数据来源**：[chinese-xinhua](https://github.com/pwxcoo/chinese-xinhua)
+- **汉字处理**：[cnchar](https://github.com/theajack/cnchar) (部首识别)
+- **数据来源**：[chinese-xinhua](https://github.com/pwxcoo/chinese-xinhua) (汉字、拼音、释义)
 
 ## 快速开始
 
@@ -114,7 +115,8 @@ pnpm format
 
 ## 数据来源
 
-汉字数据来自 [chinese-xinhua](https://github.com/pwxcoo/chinese-xinhua) 项目，包含 16142 个汉字的详细信息。
+- **汉字数据**：来自 [chinese-xinhua](https://github.com/pwxcoo/chinese-xinhua) 项目，包含 16142 个汉字的拼音和释义信息
+- **部首识别**：使用 [cnchar](https://github.com/theajack/cnchar) 库动态获取汉字的部首，更加准确和灵活
 
 ## License
 
