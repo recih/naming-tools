@@ -1,4 +1,5 @@
 import type { ChineseCharacter, RadicalIndex } from '@/types'
+import cnchar from 'cnchar'
 
 // 延迟加载汉字数据
 let charactersData: ChineseCharacter[] | null = null
@@ -27,8 +28,17 @@ export async function loadCharacters(): Promise<ChineseCharacter[]> {
 }
 
 /**
+ * 使用 cnchar 获取汉字的部首
+ */
+function getRadical(char: string): string {
+  // 使用 cnchar.radical() 获取部首
+  const radical = cnchar.radical(char)
+  return radical || ''
+}
+
+/**
  * 构建部首索引
- * 将所有汉字按部首分组
+ * 将所有汉字按部首分组（使用 cnchar 动态获取部首）
  */
 export async function buildRadicalIndex(): Promise<RadicalIndex> {
   if (radicalIndexData) {
@@ -39,7 +49,8 @@ export async function buildRadicalIndex(): Promise<RadicalIndex> {
   const index: RadicalIndex = {}
 
   for (const char of characters) {
-    const radical = char.radicals?.trim()
+    // 使用 cnchar 获取部首
+    const radical = getRadical(char.word)
     if (!radical) continue // 跳过没有部首的字
 
     if (!index[radical]) {

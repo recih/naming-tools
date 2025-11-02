@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { useFavoritesStore } from '@/stores/useFavoritesStore'
 import type { ChineseCharacter } from '@/types'
+import cnchar from 'cnchar'
 import { Heart } from 'lucide-react'
 
 interface CharacterCardProps {
@@ -12,6 +13,9 @@ interface CharacterCardProps {
 export function CharacterCard({ character }: CharacterCardProps) {
   const { isFavorite, addFavorite, removeFavorite } = useFavoritesStore()
   const favorited = isFavorite(character.word)
+
+  // 使用 cnchar 获取部首
+  const radical = cnchar.radical(character.word)
 
   const handleToggleFavorite = () => {
     if (favorited) {
@@ -49,10 +53,10 @@ export function CharacterCard({ character }: CharacterCardProps) {
           <div className="text-lg font-medium">{character.pinyin}</div>
         </div>
 
-        {character.radicals && (
+        {radical && (
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground">部首</div>
-            <div className="text-base">{character.radicals}</div>
+            <div className="text-base">{radical}</div>
           </div>
         )}
 
