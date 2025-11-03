@@ -1,10 +1,16 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  getFiveElementCounts,
+  loadCharacters,
+  searchByRadicals,
+} from '@/data/loader'
 import { cn } from '@/lib/utils'
 import { useSearchStore } from '@/stores/useSearchStore'
-import type { FiveElement } from '@/types'
+import type { ChineseCharacter, FiveElement } from '@/types'
 import { X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 // 五行配置
 const FIVE_ELEMENTS: Array<{
@@ -46,8 +52,52 @@ const FIVE_ELEMENTS: Array<{
 ]
 
 export function FiveElementSelector() {
-  const { selectedFiveElements, toggleFiveElement, clearFiveElements } =
-    useSearchStore()
+  const {
+    selectedRadicals,
+    searchMode,
+    selectedFiveElements,
+    toggleFiveElement,
+    clearFiveElements,
+  } = useSearchStore()
+
+  const [allCharacters, setAllCharacters] = useState<ChineseCharacter[]>([])
+  const [elementCounts, setElementCounts] = useState<
+    Record<FiveElement, number>
+  >({
+    金: 0,
+    木: 0,
+    水: 0,
+    火: 0,
+    土: 0,
+  })
+
+  // 加载所有汉字用于计算五行分布
+  useEffect(() => {
+    loadCharacters().then(setAllCharacters)
+  }, [])
+
+  // 计算基于当前部首筛选后的五行分布
+  useEffect(() => {
+    if (allCharacters.length === 0) return
+
+    // 如果选择了部首，使用部首筛选后的结果
+    if (selectedRadicals.length > 0) {
+      searchByRadicals(selectedRadicals, searchMode).then((results) => {
+        setElementCounts(getFiveElementCounts(results))
+      })
+    } else {
+      // 否则使用全部汉字
+      setElementCounts(getFiveElementCounts(allCharacters))
+    }
+  }, [allCharacters, selectedRadicals, searchMode])
+
+  // 格式化数字显示
+  const formatCount = (count: number): string => {
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}k`
+    }
+    return count.toString()
+  }
 
   return (
     <Card>
@@ -90,19 +140,21 @@ export function FiveElementSelector() {
         <div className="flex flex-wrap gap-3">
           {FIVE_ELEMENTS.map(({ element, label, color, textColor }) => {
             const isSelected = selectedFiveElements.includes(element)
+            const count = elementCounts[element] || 0
             return (
               <button
                 key={element}
                 type="button"
                 onClick={() => toggleFiveElement(element)}
                 className={cn(
-                  'rounded-lg px-6 py-3 font-medium text-lg transition-all hover:scale-105 hover:shadow-lg',
+                  'rounded-lg px-6 py-3 font-medium text-lg transition-all hover:scale-105 hover:shadow-lg flex items-baseline gap-2',
                   isSelected
                     ? `${color} ${textColor} ring-4 ring-offset-2 ring-gray-900`
                     : `${color} ${textColor} opacity-60 hover:opacity-100`,
                 )}
               >
-                {label}
+                <span>{label}</span>
+                <span className="text-sm opacity-80">{formatCount(count)}</span>
               </button>
             )
           })}

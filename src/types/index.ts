@@ -19,6 +19,14 @@ export type FiveElement = '金' | '木' | '水' | '火' | '土'
 // 搜索模式
 export type SearchMode = 'AND' | 'OR'
 
+// 排序模式
+export type SortMode =
+  | 'default'
+  | 'stroke-asc'
+  | 'stroke-desc'
+  | 'pinyin-asc'
+  | 'pinyin-desc'
+
 // 部首索引映射类型
 export interface RadicalIndex {
   [radical: string]: ChineseCharacter[]

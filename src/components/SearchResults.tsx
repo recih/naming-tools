@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { useSearchStore } from '@/stores/useSearchStore'
 import { CharacterCard } from './CharacterCard'
+import { SearchToolbar } from './SearchToolbar'
 
 export function SearchResults() {
   const { searchResults, selectedRadicals, selectedFiveElements, isLoading } =
@@ -38,13 +39,7 @@ export function SearchResults() {
 
   return (
     <div className="space-y-4">
-      <div className="text-sm text-muted-foreground">
-        找到{' '}
-        <span className="font-semibold text-foreground">
-          {searchResults.length}
-        </span>{' '}
-        个汉字
-      </div>
+      <SearchToolbar />
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-3">
         {searchResults.map((char) => (
           <CharacterCard key={char.word} character={char} />

@@ -11,9 +11,11 @@ import { useEffect } from 'react'
 export function RadicalSelector() {
   const {
     selectedRadicals,
+    searchMode,
     radicalFilter,
     loadRadicals,
     toggleRadical,
+    setSearchMode,
     clearSelection,
     getFilteredRadicals,
     setRadicalFilter,
@@ -28,19 +30,46 @@ export function RadicalSelector() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <CardTitle>选择偏旁部首</CardTitle>
-          {selectedRadicals.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearSelection}
-              className="h-8"
-            >
-              <X className="h-4 w-4 mr-1" />
-              清空选择
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {/* AND/OR 模式切换器 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">模式：</span>
+              <div className="inline-flex rounded-md border">
+                <Button
+                  variant={searchMode === 'OR' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 px-3 rounded-r-none"
+                  onClick={() => setSearchMode('OR')}
+                  disabled={selectedRadicals.length === 0}
+                >
+                  OR
+                </Button>
+                <Button
+                  variant={searchMode === 'AND' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 px-3 rounded-l-none border-l"
+                  onClick={() => setSearchMode('AND')}
+                  disabled={selectedRadicals.length === 0}
+                >
+                  AND
+                </Button>
+              </div>
+            </div>
+            {/* 清空按钮 */}
+            {selectedRadicals.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearSelection}
+                className="h-8"
+              >
+                <X className="h-4 w-4 mr-1" />
+                清空
+              </Button>
+            )}
+          </div>
         </div>
         <div className="pt-2">
           <div className="relative">
@@ -88,25 +117,25 @@ export function RadicalSelector() {
         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
           {filteredRadicals.map((radical) => {
             const isSelected = selectedRadicals.includes(radical)
-            const pinyinResult = cnchar.spell(radical, 'low', 'tone')
+            const pinyinResult = cnchar.spell(radical, 'low')
             const pinyin = Array.isArray(pinyinResult)
-              ? pinyinResult.join(',')
+              ? pinyinResult[0]
               : String(pinyinResult)
             return (
-              <button
+              <Button
                 key={radical}
-                type="button"
-                onClick={() => toggleRadical(radical)}
+                variant={isSelected ? 'default' : 'secondary'}
                 className={cn(
-                  'rounded-md border-2 px-2 py-3 font-medium transition-all hover:scale-105 hover:shadow-md flex flex-col items-center justify-center',
-                  isSelected
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-background hover:border-primary/50',
+                  'h-auto py-2 transition-all hover:scale-105',
+                  !isSelected && 'hover:bg-secondary/80',
                 )}
+                onClick={() => toggleRadical(radical)}
               >
-                <span className="text-xl">{radical}</span>
-                <span className="text-xs mt-1 opacity-70">{pinyin}</span>
-              </button>
+                <ruby className="text-xl font-serif select-none">
+                  {radical}
+                  <rt className="text-xs font-normal">{pinyin}</rt>
+                </ruby>
+              </Button>
             )
           })}
         </div>

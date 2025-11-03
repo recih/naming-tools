@@ -202,3 +202,68 @@ export function filterByFiveElements(
 
   return results
 }
+
+/**
+ * 统计汉字列表中各五行的分布
+ * @param characters 汉字列表
+ * @returns 五行计数对象
+ */
+export function getFiveElementCounts(
+  characters: ChineseCharacter[],
+): Record<FiveElement, number> {
+  const counts: Record<FiveElement, number> = {
+    金: 0,
+    木: 0,
+    水: 0,
+    火: 0,
+    土: 0,
+  }
+
+  for (const char of characters) {
+    const element = getFiveElement(char.word)
+    if (element && element in counts) {
+      counts[element as FiveElement]++
+    }
+  }
+
+  return counts
+}
+
+/**
+ * 获取汉字的笔画数
+ * @param char 单个汉字
+ * @returns 笔画数
+ */
+export function getStrokeCount(char: string): number {
+  try {
+    const result = cnchar.stroke(char)
+    // cnchar.stroke() 返回笔画数（数字）
+    if (typeof result === 'number') {
+      return result
+    }
+    // 如果返回数组，取第一个值
+    if (Array.isArray(result) && result.length > 0) {
+      return result[0]
+    }
+  } catch (error) {
+    console.error(`Failed to get stroke count for ${char}:`, error)
+  }
+  return 0
+}
+
+/**
+ * 获取汉字的结构信息
+ * @param char 单个汉字
+ * @returns 结构描述（如"左右结构"）
+ */
+export function getCharacterStructure(char: string): string {
+  try {
+    const result = cnchar.info(char)
+    if (Array.isArray(result) && result.length > 0 && result[0].structure) {
+      return result[0].structure
+    }
+  } catch (error) {
+    console.error(`Failed to get structure for ${char}:`, error)
+  }
+  return ''
+}

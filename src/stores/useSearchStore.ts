@@ -1,10 +1,16 @@
 import {
   filterByFiveElements,
   getAllRadicals,
+  getStrokeCount,
   loadCharacters,
   searchByRadicals,
 } from '@/data/loader'
-import type { ChineseCharacter, FiveElement, SearchMode } from '@/types'
+import type {
+  ChineseCharacter,
+  FiveElement,
+  SearchMode,
+  SortMode,
+} from '@/types'
 import cnchar from 'cnchar'
 import { create } from 'zustand'
 
@@ -14,6 +20,7 @@ interface SearchState {
   selectedRadicals: string[]
   selectedFiveElements: FiveElement[]
   searchMode: SearchMode
+  sortBy: SortMode
   searchResults: ChineseCharacter[]
   isLoading: boolean
   radicalFilter: string
@@ -26,6 +33,7 @@ interface SearchState {
   toggleRadical: (radical: string) => void
   toggleFiveElement: (element: FiveElement) => void
   setSearchMode: (mode: SearchMode) => void
+  setSortBy: (mode: SortMode) => void
   performSearch: () => Promise<void>
   clearSelection: () => void
   clearFiveElements: () => void
@@ -38,6 +46,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   selectedRadicals: [],
   selectedFiveElements: [],
   searchMode: 'OR',
+  sortBy: 'default',
   searchResults: [],
   isLoading: false,
   radicalFilter: '',
@@ -111,9 +120,20 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     }
   },
 
+  // 设置排序模式
+  setSortBy: (mode: SortMode) => {
+    const { searchResults } = get()
+    set({ sortBy: mode })
+    // 如果有结果，立即重新排序
+    if (searchResults.length > 0) {
+      const sortedResults = applySorting([...searchResults], mode)
+      set({ searchResults: sortedResults })
+    }
+  },
+
   // 执行搜索
   performSearch: async () => {
-    const { selectedRadicals, selectedFiveElements, searchMode } = get()
+    const { selectedRadicals, selectedFiveElements, searchMode, sortBy } = get()
 
     // 如果既没选部首也没选五行，返回空
     if (selectedRadicals.length === 0 && selectedFiveElements.length === 0) {
@@ -137,6 +157,9 @@ export const useSearchStore = create<SearchState>((set, get) => ({
       if (selectedFiveElements.length > 0) {
         results = filterByFiveElements(results, selectedFiveElements)
       }
+
+      // 应用排序
+      results = applySorting(results, sortBy)
 
       set({ searchResults: results })
     } catch (error) {
@@ -164,3 +187,30 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     set({ radicalFilter: filter })
   },
 }))
+
+/**
+ * 应用排序逻辑
+ */
+function applySorting(
+  results: ChineseCharacter[],
+  sortBy: SortMode,
+): ChineseCharacter[] {
+  if (sortBy === 'default') {
+    return results
+  }
+
+  return [...results].sort((a, b) => {
+    switch (sortBy) {
+      case 'stroke-asc':
+        return getStrokeCount(a.word) - getStrokeCount(b.word)
+      case 'stroke-desc':
+        return getStrokeCount(b.word) - getStrokeCount(a.word)
+      case 'pinyin-asc':
+        return a.pinyin.localeCompare(b.pinyin, 'zh-CN')
+      case 'pinyin-desc':
+        return b.pinyin.localeCompare(a.pinyin, 'zh-CN')
+      default:
+        return 0
+    }
+  })
+}

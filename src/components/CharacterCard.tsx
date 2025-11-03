@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { getFiveElement } from '@/data/loader'
 import { cn } from '@/lib/utils'
+import { useDetailPanelStore } from '@/stores/useDetailPanelStore'
 import { useFavoritesStore } from '@/stores/useFavoritesStore'
 import type { ChineseCharacter } from '@/types'
 import { Heart } from 'lucide-react'
@@ -23,6 +24,7 @@ const FIVE_ELEMENT_COLORS: Record<
 }
 
 export function CharacterCard({ character }: CharacterCardProps) {
+  const { selectCharacter } = useDetailPanelStore()
   const { isFavorite, addFavorite, removeFavorite } = useFavoritesStore()
   const favorited = isFavorite(character.word)
 
@@ -30,7 +32,12 @@ export function CharacterCard({ character }: CharacterCardProps) {
   const fiveElement = getFiveElement(character.word)
   const elementConfig = fiveElement ? FIVE_ELEMENT_COLORS[fiveElement] : null
 
-  const handleToggleFavorite = () => {
+  const handleCardClick = () => {
+    selectCharacter(character)
+  }
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation() // 阻止事件冒泡到卡片
     if (favorited) {
       removeFavorite(character.word)
     } else {
@@ -39,7 +46,10 @@ export function CharacterCard({ character }: CharacterCardProps) {
   }
 
   return (
-    <Card className="relative overflow-visible hover:shadow-lg transition-shadow group">
+    <Card
+      className="relative overflow-visible hover:shadow-lg transition-shadow group cursor-pointer"
+      onClick={handleCardClick}
+    >
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-col gap-1">
