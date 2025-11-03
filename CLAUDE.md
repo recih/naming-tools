@@ -4,13 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Chinese character radical lookup tool that allows users to search for characters by selecting one or more radicals (偏旁部首). Built with React 18, TypeScript, and modern web technologies.
+This is a Chinese character lookup tool that allows users to search for characters by:
+- Selecting one or more radicals (偏旁部首)
+- Filtering by five elements (五行: 金木水火土)
+- Combining both radical and five element filters
+
+Built with React 18, TypeScript, and modern web technologies. Commonly used for Chinese naming (起名) scenarios.
 
 ## Essential Commands
 
 ```bash
 # Development
-pnpm install                          # Install dependencies (first time setup)
+pnpm install                          # Install dependencies (includes cnchar, cnchar-radical, cnchar-poly, cnchar-info)
 git submodule update --init --recursive  # Initialize chinese-xinhua data submodule
 pnpm dev                              # Start dev server (http://localhost:5173)
 
@@ -23,25 +28,35 @@ pnpm build                            # Build for production (runs TypeScript ch
 pnpm preview                          # Preview production build
 ```
 
+**Note**: cnchar plugins (`cnchar-radical`, `cnchar-poly`, `cnchar-info`) are auto-initialized in `src/main.tsx` via `cnchar.use()`.
+
 ## Architecture
 
 ### Data Flow & Core Concepts
 
 1. **Radical Detection with cnchar**: Uses the `cnchar` library to dynamically extract radicals from characters, NOT the static `radicals` field from chinese-xinhua data. This is critical - always use `cnchar.radical(char)` for radical operations.
 
-2. **Data Sources**:
+2. **Five Element Detection with cnchar-info**: Uses `cnchar.info(char)` to get five element (五行) properties. The `getFiveElement()` helper in `src/data/loader.ts` extracts the `fiveElement` field from the cnchar.info() result. Returns one of: 金, 木, 水, 火, 土.
+
+3. **Data Sources**:
    - `chinese-xinhua` submodule: Provides character data (word, pinyin, explanation) via `/chinese-xinhua/word.json` (symlink points to data directory only)
-   - `cnchar`: Provides accurate radical detection at runtime
+   - `cnchar-radical`: Provides accurate radical detection at runtime
+   - `cnchar-info`: Provides five element (五行) data at runtime
    - Data is fetched once and cached in module-level variables
 
-3. **State Management** (Zustand):
-   - `useSearchStore`: Manages radical selection, search mode (AND/OR), and search results. Auto-triggers search on radical toggle.
+4. **State Management** (Zustand):
+   - `useSearchStore`: Manages radical selection, five element selection, search mode (AND/OR), and search results. Auto-triggers search on radical/five element toggle.
    - `useFavoritesStore`: Manages favorites with localStorage persistence via Zustand's `persist` middleware.
 
-4. **Search Algorithm** (`src/data/loader.ts`):
+5. **Search Algorithm** (`src/data/loader.ts`):
    - Builds a `RadicalIndex` mapping radicals → characters using `cnchar.radical()`
-   - OR mode: Returns characters matching ANY selected radical
-   - AND mode: Returns characters where the character itself contains all selected radicals (Note: limited results since characters typically have one primary radical)
+   - Provides `getFiveElement(char)` using `cnchar.info()` for five element lookup
+   - Provides `filterByFiveElements()` to filter characters by 五行 with deduplication
+   - **Supports three search modes**:
+     - **Radical only**: OR/AND mode for radical matching
+     - **Five element only**: Searches all characters, filters by selected elements (金木水火土)
+     - **Combined**: Applies five element filter after radical search
+   - **Data deduplication**: `loadCharacters()` removes duplicate entries from chinese-xinhua data to prevent React key warnings
 
 ### Key Technical Decisions
 
@@ -54,13 +69,28 @@ pnpm preview                          # Preview production build
 - **Component Structure**:
   - `src/components/ui/`: shadcn/ui base components (Button, Card, Badge, Switch, Tabs)
   - `src/components/`: Feature components that use stores and display character data
+    - `RadicalSelector.tsx`: Radical selection with pinyin filter
+    - `FiveElementSelector.tsx`: Five element filter UI with color-coded buttons (金木水火土)
+    - `CharacterCard.tsx`: Displays character with ruby pinyin, five element badge, and hover tooltip
+    - `SearchResults.tsx`: Grid display of matching characters
+    - `FavoritesView.tsx`: Saved favorites display
 
 ### Important Implementation Notes
 
-- When adding new character display logic, always use `cnchar.radical(character.word)` for radical, never `character.radicals`
-- Search is automatically triggered when users toggle radicals - don't add manual search buttons
-- The `public/chinese-xinhua` is a symlink to `chinese-xinhua/data` directory (not the entire submodule), exposing only JSON data files
-- Favorites use the full `ChineseCharacter` object, not just the word string
+- **Radical detection**: Always use `cnchar.radical(character.word)` for radical, never `character.radicals` from chinese-xinhua data
+- **Five element detection**: Always use `getFiveElement(character.word)` which calls `cnchar.info()`, never a static field
+- **Character cards**: Use HTML `<ruby>` tags for pinyin display above characters (semantic and accessible)
+- **Five element colors**: Color-coded badges follow traditional associations:
+  - 金 (Metal): amber/gold background
+  - 木 (Wood): green background
+  - 水 (Water): blue background
+  - 火 (Fire): red background
+  - 土 (Earth): yellow/brown background
+- **Search behavior**: Automatically triggered on radical/five element toggle - don't add manual search buttons
+- **Five-element-only searches**: Users can search by five elements without selecting any radicals
+- **Data deduplication**: Both `loadCharacters()` and `filterByFiveElements()` use Set-based deduplication to prevent duplicate character warnings
+- **Symlink structure**: `public/chinese-xinhua` is a symlink to `chinese-xinhua/data` directory (not the entire submodule), exposing only JSON data files
+- **Favorites persistence**: Uses the full `ChineseCharacter` object, not just the word string, persisted to localStorage
 
 ## Development Workflow
 
@@ -70,14 +100,51 @@ pnpm preview                          # Preview production build
 4. Always run `pnpm lint` before committing to catch Biome issues
 5. Component styling uses Tailwind utility classes with the `cn()` helper from `src/lib/utils.ts`
 
+## Type Definitions
+
+Key types defined in `src/types/index.ts`:
+
+- **`FiveElement`**: Union type for five elements
+
+  ```typescript
+  type FiveElement = '金' | '木' | '水' | '火' | '土'
+  ```
+
+- **`SearchMode`**: Union type for radical search modes
+
+  ```typescript
+  type SearchMode = 'AND' | 'OR'
+  ```
+
+- **`ChineseCharacter`**: Main character data type
+
+  ```typescript
+  interface ChineseCharacter {
+    word: string
+    pinyin: string
+    explanation: string
+    // Note: fiveElement field is computed on-demand via getFiveElement(), not stored
+  }
+  ```
+
+- **`RadicalIndex`**: Mapping from radicals to characters
+
+  ```typescript
+  interface RadicalIndex {
+    [radical: string]: ChineseCharacter[]
+  }
+  ```
+
 ## Submodule Management
 
 The `chinese-xinhua` submodule must be initialized after cloning:
+
 ```bash
 git submodule update --init --recursive
 ```
 
 If the submodule is updated upstream:
+
 ```bash
 git submodule update --remote chinese-xinhua
 ```
