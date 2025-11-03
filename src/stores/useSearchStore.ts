@@ -1,5 +1,6 @@
 import { getAllRadicals, searchByRadicals } from '@/data/loader'
 import type { ChineseCharacter, SearchMode } from '@/types'
+import cnchar from 'cnchar'
 import { create } from 'zustand'
 
 interface SearchState {
@@ -9,6 +10,10 @@ interface SearchState {
   searchMode: SearchMode
   searchResults: ChineseCharacter[]
   isLoading: boolean
+  radicalFilter: string
+
+  // 计算属性
+  getFilteredRadicals: () => string[]
 
   // Actions
   loadRadicals: () => Promise<void>
@@ -16,6 +21,7 @@ interface SearchState {
   setSearchMode: (mode: SearchMode) => void
   performSearch: () => Promise<void>
   clearSelection: () => void
+  setRadicalFilter: (filter: string) => void
 }
 
 export const useSearchStore = create<SearchState>((set, get) => ({
@@ -25,6 +31,21 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   searchMode: 'OR',
   searchResults: [],
   isLoading: false,
+  radicalFilter: '',
+
+  // 计算属性：根据拼音过滤部首
+  getFilteredRadicals: () => {
+    const { allRadicals, radicalFilter } = get()
+    if (!radicalFilter.trim()) {
+      return allRadicals
+    }
+
+    const filter = radicalFilter.toLowerCase().trim()
+    return allRadicals.filter((radical) => {
+      const pinyin = cnchar.spell(radical, 'low')
+      return pinyin.includes(filter)
+    })
+  },
 
   // 加载所有部首
   loadRadicals: async () => {
@@ -87,5 +108,10 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   // 清空选择
   clearSelection: () => {
     set({ selectedRadicals: [], searchResults: [] })
+  },
+
+  // 设置部首过滤器
+  setRadicalFilter: (filter: string) => {
+    set({ radicalFilter: filter })
   },
 }))
