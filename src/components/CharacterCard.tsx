@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { useFavoritesStore } from '@/stores/useFavoritesStore'
 import type { ChineseCharacter } from '@/types'
-import cnchar from 'cnchar'
 import { Heart } from 'lucide-react'
 
 interface CharacterCardProps {
@@ -14,13 +13,6 @@ export function CharacterCard({ character }: CharacterCardProps) {
   const { isFavorite, addFavorite, removeFavorite } = useFavoritesStore()
   const favorited = isFavorite(character.word)
 
-  // 使用 cnchar 获取部首
-  const radicalResult = cnchar.radical(character.word)
-  const radical =
-    Array.isArray(radicalResult) && radicalResult.length > 0
-      ? radicalResult[0].radical
-      : ''
-
   const handleToggleFavorite = () => {
     if (favorited) {
       removeFavorite(character.word)
@@ -30,19 +22,22 @@ export function CharacterCard({ character }: CharacterCardProps) {
   }
 
   return (
-    <Card className="relative overflow-hidden hover:shadow-lg transition-shadow">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="text-6xl font-serif">{character.word}</div>
+    <Card className="relative overflow-visible hover:shadow-lg transition-shadow group">
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2">
+          <ruby className="text-4xl font-serif select-none">
+            {character.word}
+            <rt className="text-xs font-normal">{character.pinyin}</rt>
+          </ruby>
           <Button
             variant="ghost"
             size="icon"
             onClick={handleToggleFavorite}
-            className="h-8 w-8"
+            className="h-7 w-7 flex-shrink-0"
           >
             <Heart
               className={cn(
-                'h-5 w-5 transition-colors',
+                'h-4 w-4 transition-colors',
                 favorited
                   ? 'fill-red-500 text-red-500'
                   : 'text-muted-foreground',
@@ -50,29 +45,18 @@ export function CharacterCard({ character }: CharacterCardProps) {
             />
           </Button>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="space-y-1">
-          <div className="text-sm text-muted-foreground">拼音</div>
-          <div className="text-lg font-medium">{character.pinyin}</div>
-        </div>
+      </div>
 
-        {radical && (
-          <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">部首</div>
-            <div className="text-base">{radical}</div>
-          </div>
-        )}
-
-        {character.explanation && (
-          <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">释义</div>
-            <div className="text-sm line-clamp-3 leading-relaxed">
-              {character.explanation.split('\n')[0]}
+      {/* Hover tooltip for explanation */}
+      {character.explanation && (
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none">
+          <div className="bg-gray-900 text-white text-sm rounded-lg p-3 shadow-lg w-72">
+            <div className="whitespace-pre-line leading-relaxed">
+              {character.explanation}
             </div>
           </div>
-        )}
-      </CardContent>
+        </div>
+      )}
     </Card>
   )
 }
