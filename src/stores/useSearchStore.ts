@@ -42,7 +42,10 @@ export const useSearchStore = create<SearchState>((set, get) => ({
 
     const filter = radicalFilter.toLowerCase().trim()
     return allRadicals.filter((radical) => {
-      const pinyin = cnchar.spell(radical, 'low')
+      const pinyinResult = cnchar.spell(radical, 'low')
+      const pinyin = Array.isArray(pinyinResult)
+        ? pinyinResult.join('')
+        : String(pinyinResult)
       return pinyin.includes(filter)
     })
   },

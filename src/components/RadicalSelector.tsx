@@ -88,7 +88,10 @@ export function RadicalSelector() {
         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
           {filteredRadicals.map((radical) => {
             const isSelected = selectedRadicals.includes(radical)
-            const pinyin = cnchar.spell(radical, 'low', 'tone')
+            const pinyinResult = cnchar.spell(radical, 'low', 'tone')
+            const pinyin = Array.isArray(pinyinResult)
+              ? pinyinResult.join(',')
+              : String(pinyinResult)
             return (
               <button
                 key={radical}

@@ -32,8 +32,12 @@ export async function loadCharacters(): Promise<ChineseCharacter[]> {
  */
 function getRadical(char: string): string {
   // 使用 cnchar.radical() 获取部首
-  const radical = cnchar.radical(char)
-  return radical || ''
+  const result = cnchar.radical(char)
+  // cnchar.radical() 返回数组，提取第一个结果的 radical 字段
+  if (Array.isArray(result) && result.length > 0 && result[0].radical) {
+    return result[0].radical
+  }
+  return ''
 }
 
 /**

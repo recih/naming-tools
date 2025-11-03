@@ -14,6 +14,12 @@ dependencies:
   cnchar:
     specifier: ^3.2.6
     version: 3.2.6
+  cnchar-poly:
+    specifier: ^3.2.6
+    version: 3.2.6
+  cnchar-radical:
+    specifier: ^3.2.6
+    version: 3.2.6
   lucide-react:
     specifier: ^0.552.0
     version: 0.552.0(react@18.3.1)
@@ -1317,6 +1323,18 @@ packages:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
     dev: true
+
+  /cnchar-poly@3.2.6:
+    resolution: {integrity: sha512-CF0WA5S/OTvuY2gBPTgnMPCfte/Hk5od22zK9J3B7VzMZfzdH01Bs0+9xl2xLsObEE6UUg3dvqwDR5ozkFZM7A==}
+    dependencies:
+      cnchar-types: 3.2.6
+    dev: false
+
+  /cnchar-radical@3.2.6:
+    resolution: {integrity: sha512-c9d9DpYoLe6zlHewrwVgfcBVTeo9LuFT7KBICeIKIxggifBCLoOaYz4jkZuh1dz6j5h9Fz6rOrrA9YnXbUBLDw==}
+    dependencies:
+      cnchar-types: 3.2.6
+    dev: false
 
   /cnchar-types@3.2.6:
     resolution: {integrity: sha512-LGU2ss7KcsI1Psme73+jffUX0ZDuChr6P9Rj2j8lynJHStklNpoC/+kheKSSUcXQ1u2KNvZt1Shs/5efcihHkg==}

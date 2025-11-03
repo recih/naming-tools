@@ -15,7 +15,11 @@ export function CharacterCard({ character }: CharacterCardProps) {
   const favorited = isFavorite(character.word)
 
   // 使用 cnchar 获取部首
-  const radical = cnchar.radical(character.word)
+  const radicalResult = cnchar.radical(character.word)
+  const radical =
+    Array.isArray(radicalResult) && radicalResult.length > 0
+      ? radicalResult[0].radical
+      : ''
 
   const handleToggleFavorite = () => {
     if (favorited) {
