@@ -28,21 +28,24 @@ export async function loadCharacters(): Promise<ChineseCharacter[]> {
 }
 
 /**
- * 使用 cnchar 获取汉字的部首
+ * 使用 cnchar 获取汉字的所有部首
  */
-function getRadical(char: string): string {
+function getRadicals(char: string): string[] {
   // 使用 cnchar.radical() 获取部首
   const result = cnchar.radical(char)
-  // cnchar.radical() 返回数组，提取第一个结果的 radical 字段
-  if (Array.isArray(result) && result.length > 0 && result[0].radical) {
-    return result[0].radical
+  // cnchar.radical() 返回数组，提取所有 radical 字段
+  if (Array.isArray(result) && result.length > 0) {
+    return result
+      .map((item) => item.radical)
+      .filter((radical): radical is string => Boolean(radical))
   }
-  return ''
+  return []
 }
 
 /**
  * 构建部首索引
  * 将所有汉字按部首分组（使用 cnchar 动态获取部首）
+ * 一个汉字如果有多个部首，会被所有部首索引
  */
 export async function buildRadicalIndex(): Promise<RadicalIndex> {
   if (radicalIndexData) {
@@ -53,14 +56,17 @@ export async function buildRadicalIndex(): Promise<RadicalIndex> {
   const index: RadicalIndex = {}
 
   for (const char of characters) {
-    // 使用 cnchar 获取部首
-    const radical = getRadical(char.word)
-    if (!radical) continue // 跳过没有部首的字
+    // 使用 cnchar 获取所有部首
+    const radicals = getRadicals(char.word)
+    if (radicals.length === 0) continue // 跳过没有部首的字
 
-    if (!index[radical]) {
-      index[radical] = []
+    // 将字符添加到所有部首的索引中
+    for (const radical of radicals) {
+      if (!index[radical]) {
+        index[radical] = []
+      }
+      index[radical].push(char)
     }
-    index[radical].push(char)
   }
 
   radicalIndexData = index
