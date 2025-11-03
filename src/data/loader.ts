@@ -1,4 +1,4 @@
-import type { ChineseCharacter, RadicalIndex } from '@/types'
+import type { ChineseCharacter, FiveElement, RadicalIndex } from '@/types'
 import cnchar from 'cnchar'
 
 // 延迟加载汉字数据
@@ -19,8 +19,21 @@ export async function loadCharacters(): Promise<ChineseCharacter[]> {
     if (!response.ok) {
       throw new Error(`Failed to load character data: ${response.statusText}`)
     }
-    charactersData = await response.json()
-    return charactersData as ChineseCharacter[]
+    const rawData = (await response.json()) as ChineseCharacter[]
+
+    // 去重：某些汉字可能在数据源中重复
+    const seenWords = new Set<string>()
+    const uniqueData: ChineseCharacter[] = []
+
+    for (const char of rawData) {
+      if (!seenWords.has(char.word)) {
+        seenWords.add(char.word)
+        uniqueData.push(char)
+      }
+    }
+
+    charactersData = uniqueData
+    return charactersData
   } catch (error) {
     console.error('Error loading character data:', error)
     return []
@@ -139,4 +152,53 @@ export async function searchByRadicals(
       return radicalChars.some((c) => c.word === char.word)
     })
   })
+}
+
+/**
+ * 使用 cnchar.info() 获取汉字的五行属性
+ */
+export function getFiveElement(char: string): string {
+  try {
+    const result = cnchar.info(char)
+    // cnchar.info() 返回数组，提取第一个结果的 fiveElement 字段
+    if (Array.isArray(result) && result.length > 0 && result[0].fiveElement) {
+      return result[0].fiveElement
+    }
+  } catch (error) {
+    console.error(`Failed to get five element for ${char}:`, error)
+  }
+  return ''
+}
+
+/**
+ * 根据五行过滤汉字
+ * @param characters 待过滤的汉字列表
+ * @param elements 五行数组（金木水火土）
+ */
+export function filterByFiveElements(
+  characters: ChineseCharacter[],
+  elements: FiveElement[],
+): ChineseCharacter[] {
+  if (elements.length === 0) {
+    return characters
+  }
+
+  // 使用 Set 去重，避免重复的汉字
+  const seenWords = new Set<string>()
+  const results: ChineseCharacter[] = []
+
+  for (const char of characters) {
+    // 跳过已经处理过的汉字
+    if (seenWords.has(char.word)) {
+      continue
+    }
+
+    const fiveElement = getFiveElement(char.word)
+    if (elements.includes(fiveElement as FiveElement)) {
+      seenWords.add(char.word)
+      results.push(char)
+    }
+  }
+
+  return results
 }

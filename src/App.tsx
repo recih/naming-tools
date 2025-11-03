@@ -1,4 +1,5 @@
 import { FavoritesView } from '@/components/FavoritesView'
+import { FiveElementSelector } from '@/components/FiveElementSelector'
 import { ModeToggle } from '@/components/ModeToggle'
 import { RadicalSelector } from '@/components/RadicalSelector'
 import { SearchResults } from '@/components/SearchResults'
@@ -33,6 +34,7 @@ function App() {
           <TabsContent value="search" className="space-y-6">
             <RadicalSelector />
             <ModeToggle />
+            <FiveElementSelector />
             <SearchResults />
           </TabsContent>
 

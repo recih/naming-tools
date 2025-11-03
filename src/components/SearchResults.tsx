@@ -3,7 +3,8 @@ import { useSearchStore } from '@/stores/useSearchStore'
 import { CharacterCard } from './CharacterCard'
 
 export function SearchResults() {
-  const { searchResults, selectedRadicals, isLoading } = useSearchStore()
+  const { searchResults, selectedRadicals, selectedFiveElements, isLoading } =
+    useSearchStore()
 
   if (isLoading) {
     return (
@@ -15,11 +16,11 @@ export function SearchResults() {
     )
   }
 
-  if (selectedRadicals.length === 0) {
+  if (selectedRadicals.length === 0 && selectedFiveElements.length === 0) {
     return (
       <Card>
         <CardContent className="py-12 text-center text-muted-foreground">
-          请选择偏旁部首开始搜索
+          请选择偏旁部首或五行开始搜索
         </CardContent>
       </Card>
     )

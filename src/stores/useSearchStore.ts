@@ -1,5 +1,10 @@
-import { getAllRadicals, searchByRadicals } from '@/data/loader'
-import type { ChineseCharacter, SearchMode } from '@/types'
+import {
+  filterByFiveElements,
+  getAllRadicals,
+  loadCharacters,
+  searchByRadicals,
+} from '@/data/loader'
+import type { ChineseCharacter, FiveElement, SearchMode } from '@/types'
 import cnchar from 'cnchar'
 import { create } from 'zustand'
 
@@ -7,6 +12,7 @@ interface SearchState {
   // 状态
   allRadicals: string[]
   selectedRadicals: string[]
+  selectedFiveElements: FiveElement[]
   searchMode: SearchMode
   searchResults: ChineseCharacter[]
   isLoading: boolean
@@ -18,9 +24,11 @@ interface SearchState {
   // Actions
   loadRadicals: () => Promise<void>
   toggleRadical: (radical: string) => void
+  toggleFiveElement: (element: FiveElement) => void
   setSearchMode: (mode: SearchMode) => void
   performSearch: () => Promise<void>
   clearSelection: () => void
+  clearFiveElements: () => void
   setRadicalFilter: (filter: string) => void
 }
 
@@ -28,6 +36,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   // 初始状态
   allRadicals: [],
   selectedRadicals: [],
+  selectedFiveElements: [],
   searchMode: 'OR',
   searchResults: [],
   isLoading: false,
@@ -78,6 +87,21 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     get().performSearch()
   },
 
+  // 切换五行选择状态
+  toggleFiveElement: (element: FiveElement) => {
+    const { selectedFiveElements } = get()
+    const isSelected = selectedFiveElements.includes(element)
+
+    const newSelection = isSelected
+      ? selectedFiveElements.filter((e) => e !== element)
+      : [...selectedFiveElements, element]
+
+    set({ selectedFiveElements: newSelection })
+
+    // 自动触发搜索
+    get().performSearch()
+  },
+
   // 设置搜索模式
   setSearchMode: (mode: SearchMode) => {
     set({ searchMode: mode })
@@ -89,16 +113,31 @@ export const useSearchStore = create<SearchState>((set, get) => ({
 
   // 执行搜索
   performSearch: async () => {
-    const { selectedRadicals, searchMode } = get()
+    const { selectedRadicals, selectedFiveElements, searchMode } = get()
 
-    if (selectedRadicals.length === 0) {
+    // 如果既没选部首也没选五行，返回空
+    if (selectedRadicals.length === 0 && selectedFiveElements.length === 0) {
       set({ searchResults: [] })
       return
     }
 
     set({ isLoading: true })
     try {
-      const results = await searchByRadicals(selectedRadicals, searchMode)
+      let results: ChineseCharacter[]
+
+      // 如果选了部首，按部首搜索
+      if (selectedRadicals.length > 0) {
+        results = await searchByRadicals(selectedRadicals, searchMode)
+      } else {
+        // 如果只选了五行，从所有汉字中筛选
+        results = await loadCharacters()
+      }
+
+      // 如果选了五行，进行五行过滤
+      if (selectedFiveElements.length > 0) {
+        results = filterByFiveElements(results, selectedFiveElements)
+      }
+
       set({ searchResults: results })
     } catch (error) {
       console.error('Search failed:', error)
@@ -111,6 +150,13 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   // 清空选择
   clearSelection: () => {
     set({ selectedRadicals: [], searchResults: [] })
+  },
+
+  // 清空五行选择
+  clearFiveElements: () => {
+    set({ selectedFiveElements: [] })
+    // 自动触发搜索
+    get().performSearch()
   },
 
   // 设置部首过滤器
