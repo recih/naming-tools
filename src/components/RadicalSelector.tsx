@@ -43,13 +43,24 @@ export function RadicalSelector() {
           )}
         </div>
         <div className="pt-2">
-          <Input
-            type="text"
-            placeholder="输入拼音筛选"
-            value={radicalFilter}
-            onChange={(e) => setRadicalFilter(e.target.value)}
-            className="h-9"
-          />
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="输入拼音筛选"
+              value={radicalFilter}
+              onChange={(e) => setRadicalFilter(e.target.value)}
+              className="h-9 pr-8"
+            />
+            {radicalFilter && (
+              <button
+                type="button"
+                onClick={() => setRadicalFilter('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
           {radicalFilter && (
             <div className="text-sm text-muted-foreground mt-2">
               找到 {filteredRadicals.length} 个部首
