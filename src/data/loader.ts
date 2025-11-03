@@ -122,13 +122,21 @@ export async function searchByRadicals(
 
     return results
   }
-  // AND 模式：包含所有部首的汉字
-  // 注意：一个汉字只有一个主部首，所以 AND 模式可能返回空结果
-  // 这里我们返回第一个部首的结果，然后过滤出包含所有部首的汉字
+  // AND 模式：包含所有部首的汉字（求交集）
+  // 获取第一个部首的所有汉字作为候选
   const firstRadicalChars = index[radicals[0]] || []
 
+  // 如果只有一个部首，直接返回该部首的所有汉字
+  if (radicals.length === 1) {
+    return firstRadicalChars
+  }
+
+  // 多个部首时，过滤出在所有部首索引中都出现的汉字
   return firstRadicalChars.filter((char) => {
-    // 检查汉字本身是否包含所有指定的部首
-    return radicals.every((radical) => char.word.includes(radical))
+    // 检查该汉字是否在其他所有部首的索引中
+    return radicals.slice(1).every((radical) => {
+      const radicalChars = index[radical] || []
+      return radicalChars.some((c) => c.word === char.word)
+    })
   })
 }
