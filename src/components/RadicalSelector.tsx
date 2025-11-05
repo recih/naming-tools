@@ -1,11 +1,16 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useSearchStore } from '@/stores/useSearchStore'
 import cnchar from 'cnchar'
-import { X } from 'lucide-react'
+import { ChevronDown, X } from 'lucide-react'
 import { useEffect } from 'react'
 
 export function RadicalSelector() {
@@ -19,6 +24,8 @@ export function RadicalSelector() {
     clearSelection,
     getFilteredRadicals,
     setRadicalFilter,
+    isRadicalSelectorOpen,
+    toggleRadicalSelector,
   } = useSearchStore()
 
   const filteredRadicals = getFilteredRadicals()
@@ -28,11 +35,20 @@ export function RadicalSelector() {
   }, [loadRadicals])
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between gap-4">
-          <CardTitle>选择偏旁部首</CardTitle>
-          <div className="flex items-center gap-2">
+    <Collapsible open={isRadicalSelectorOpen} onOpenChange={toggleRadicalSelector}>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between gap-4">
+            <CollapsibleTrigger className="flex items-center gap-2 hover:opacity-70 transition-opacity">
+              <CardTitle>选择偏旁部首</CardTitle>
+              <ChevronDown
+                className={cn(
+                  'h-5 w-5 transition-transform',
+                  isRadicalSelectorOpen && 'rotate-180',
+                )}
+              />
+            </CollapsibleTrigger>
+            <div className="flex items-center gap-2">
             {/* AND/OR 模式切换器 */}
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">模式：</span>
@@ -113,33 +129,36 @@ export function RadicalSelector() {
           </div>
         )}
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
-          {filteredRadicals.map((radical) => {
-            const isSelected = selectedRadicals.includes(radical)
-            const pinyinResult = cnchar.spell(radical, 'low')
-            const pinyin = Array.isArray(pinyinResult)
-              ? pinyinResult[0]
-              : String(pinyinResult)
-            return (
-              <Button
-                key={radical}
-                variant={isSelected ? 'default' : 'secondary'}
-                className={cn(
-                  'h-auto py-2 transition-all hover:scale-105',
-                  !isSelected && 'hover:bg-secondary/80',
-                )}
-                onClick={() => toggleRadical(radical)}
-              >
-                <ruby className="text-xl font-serif select-none">
-                  {radical}
-                  <rt className="text-xs font-normal">{pinyin}</rt>
-                </ruby>
-              </Button>
-            )
-          })}
-        </div>
-      </CardContent>
+      <CollapsibleContent>
+        <CardContent>
+          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
+            {filteredRadicals.map((radical) => {
+              const isSelected = selectedRadicals.includes(radical)
+              const pinyinResult = cnchar.spell(radical, 'low')
+              const pinyin = Array.isArray(pinyinResult)
+                ? pinyinResult[0]
+                : String(pinyinResult)
+              return (
+                <Button
+                  key={radical}
+                  variant={isSelected ? 'default' : 'secondary'}
+                  className={cn(
+                    'h-auto py-2 transition-all hover:scale-105',
+                    !isSelected && 'hover:bg-secondary/80',
+                  )}
+                  onClick={() => toggleRadical(radical)}
+                >
+                  <ruby className="text-xl font-serif select-none">
+                    {radical}
+                    <rt className="text-xs font-normal">{pinyin}</rt>
+                  </ruby>
+                </Button>
+              )
+            })}
+          </div>
+        </CardContent>
+      </CollapsibleContent>
     </Card>
+    </Collapsible>
   )
 }

@@ -2,6 +2,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
+import {
   getFiveElementCounts,
   loadCharacters,
   searchByRadicals,
@@ -9,7 +14,7 @@ import {
 import { cn } from '@/lib/utils'
 import { useSearchStore } from '@/stores/useSearchStore'
 import type { ChineseCharacter, FiveElement } from '@/types'
-import { X } from 'lucide-react'
+import { ChevronDown, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 // 五行配置
@@ -58,6 +63,8 @@ export function FiveElementSelector() {
     selectedFiveElements,
     toggleFiveElement,
     clearFiveElements,
+    isFiveElementSelectorOpen,
+    toggleFiveElementSelector,
   } = useSearchStore()
 
   const [allCharacters, setAllCharacters] = useState<ChineseCharacter[]>([])
@@ -100,11 +107,23 @@ export function FiveElementSelector() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>按五行筛选</CardTitle>
-          {selectedFiveElements.length > 0 && (
+    <Collapsible
+      open={isFiveElementSelectorOpen}
+      onOpenChange={toggleFiveElementSelector}
+    >
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CollapsibleTrigger className="flex items-center gap-2 hover:opacity-70 transition-opacity">
+              <CardTitle>按五行筛选</CardTitle>
+              <ChevronDown
+                className={cn(
+                  'h-5 w-5 transition-transform',
+                  isFiveElementSelectorOpen && 'rotate-180',
+                )}
+              />
+            </CollapsibleTrigger>
+            {selectedFiveElements.length > 0 && (
             <Button
               variant="outline"
               size="sm"
@@ -136,30 +155,33 @@ export function FiveElementSelector() {
           </div>
         )}
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-wrap gap-3">
-          {FIVE_ELEMENTS.map(({ element, label, color, textColor }) => {
-            const isSelected = selectedFiveElements.includes(element)
-            const count = elementCounts[element] || 0
-            return (
-              <button
-                key={element}
-                type="button"
-                onClick={() => toggleFiveElement(element)}
-                className={cn(
-                  'rounded-lg px-6 py-3 font-medium text-lg transition-all hover:scale-105 hover:shadow-lg flex items-baseline gap-2',
-                  isSelected
-                    ? `${color} ${textColor} ring-4 ring-offset-2 ring-gray-900`
-                    : `${color} ${textColor} opacity-60 hover:opacity-100`,
-                )}
-              >
-                <span>{label}</span>
-                <span className="text-sm opacity-80">{formatCount(count)}</span>
-              </button>
-            )
-          })}
-        </div>
-      </CardContent>
+      <CollapsibleContent>
+        <CardContent>
+          <div className="flex flex-wrap gap-3">
+            {FIVE_ELEMENTS.map(({ element, label, color, textColor }) => {
+              const isSelected = selectedFiveElements.includes(element)
+              const count = elementCounts[element] || 0
+              return (
+                <button
+                  key={element}
+                  type="button"
+                  onClick={() => toggleFiveElement(element)}
+                  className={cn(
+                    'rounded-lg px-6 py-3 font-medium text-lg transition-all hover:scale-105 hover:shadow-lg flex items-baseline gap-2',
+                    isSelected
+                      ? `${color} ${textColor} ring-4 ring-offset-2 ring-gray-900`
+                      : `${color} ${textColor} opacity-60 hover:opacity-100`,
+                  )}
+                >
+                  <span>{label}</span>
+                  <span className="text-sm opacity-80">{formatCount(count)}</span>
+                </button>
+              )
+            })}
+          </div>
+        </CardContent>
+      </CollapsibleContent>
     </Card>
+    </Collapsible>
   )
 }

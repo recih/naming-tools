@@ -24,6 +24,8 @@ interface SearchState {
   searchResults: ChineseCharacter[]
   isLoading: boolean
   radicalFilter: string
+  isRadicalSelectorOpen: boolean
+  isFiveElementSelectorOpen: boolean
 
   // 计算属性
   getFilteredRadicals: () => string[]
@@ -38,6 +40,8 @@ interface SearchState {
   clearSelection: () => void
   clearFiveElements: () => void
   setRadicalFilter: (filter: string) => void
+  toggleRadicalSelector: () => void
+  toggleFiveElementSelector: () => void
 }
 
 export const useSearchStore = create<SearchState>((set, get) => ({
@@ -50,6 +54,8 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   searchResults: [],
   isLoading: false,
   radicalFilter: '',
+  isRadicalSelectorOpen: true,
+  isFiveElementSelectorOpen: true,
 
   // 计算属性：根据拼音过滤部首
   getFilteredRadicals: () => {
@@ -185,6 +191,16 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   // 设置部首过滤器
   setRadicalFilter: (filter: string) => {
     set({ radicalFilter: filter })
+  },
+
+  // 切换部首选择器展开/折叠状态
+  toggleRadicalSelector: () => {
+    set((state) => ({ isRadicalSelectorOpen: !state.isRadicalSelectorOpen }))
+  },
+
+  // 切换五行选择器展开/折叠状态
+  toggleFiveElementSelector: () => {
+    set((state) => ({ isFiveElementSelectorOpen: !state.isFiveElementSelectorOpen }))
   },
 }))
 
