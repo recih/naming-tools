@@ -11,7 +11,7 @@ function App() {
   const { selectedCharacter } = useDetailPanelStore()
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       <header className="border-b bg-card flex-shrink-0">
         <div className="container mx-auto py-6 px-4">
           <h1 className="text-3xl font-bold">汉字偏旁与五行查询工具</h1>
@@ -21,7 +21,7 @@ function App() {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-h-0">
         {/* 主内容区 */}
         <main className="flex-1 overflow-y-auto">
           <div className="container mx-auto py-6 px-4">

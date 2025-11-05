@@ -17,7 +17,7 @@ import { useFavoritesStore } from '@/stores/useFavoritesStore'
 import { useSearchStore } from '@/stores/useSearchStore'
 import cnchar from 'cnchar'
 import { ChevronLeft, ChevronRight, Heart, X } from 'lucide-react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 // 五行颜色映射
 const FIVE_ELEMENT_COLORS: Record<
@@ -40,6 +40,22 @@ export function CharacterDetailPanel() {
   } = useDetailPanelStore()
   const { searchResults } = useSearchStore()
   const { isFavorite, addFavorite, removeFavorite } = useFavoritesStore()
+
+  // 检测是否为移动端（小于 lg 断点，即 1024px）
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024)
+    }
+
+    // 初始检查
+    checkMobile()
+
+    // 监听窗口大小变化
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // 计算当前索引和导航状态
   const { currentIndex, isFirst, isLast } = useMemo(() => {
@@ -202,19 +218,23 @@ export function CharacterDetailPanel() {
   return (
     <>
       {/* 桌面端：固定侧边栏 */}
-      <div className="hidden lg:block w-96 border-l bg-background">
-        <DetailContent />
-      </div>
+      {!isMobile && (
+        <div className="w-96 border-l bg-background h-full flex flex-col overflow-hidden">
+          <DetailContent />
+        </div>
+      )}
 
       {/* 移动/平板端：Sheet 覆盖层 */}
-      <Sheet open={!!selectedCharacter} onOpenChange={clearSelection}>
-        <SheetContent side="right" className="lg:hidden w-80 sm:w-96 p-0">
-          <SheetHeader className="sr-only">
-            <SheetTitle>汉字详情</SheetTitle>
-          </SheetHeader>
-          <DetailContent />
-        </SheetContent>
-      </Sheet>
+      {isMobile && (
+        <Sheet open={!!selectedCharacter} onOpenChange={clearSelection}>
+          <SheetContent side="right" className="w-80 sm:w-96 p-0">
+            <SheetHeader className="sr-only">
+              <SheetTitle>汉字详情</SheetTitle>
+            </SheetHeader>
+            <DetailContent />
+          </SheetContent>
+        </Sheet>
+      )}
     </>
   )
 }
