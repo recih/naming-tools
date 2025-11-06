@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 export const Route = createFileRoute('/api/word-json')({
   server: {
     handlers: {
-      GET: async ({ request, context }) => {
+      GET: async ({ context }) => {
         // Get R2 binding from context
         const env = context.cloudflare?.env
         if (!env?.WORD_DATA) {

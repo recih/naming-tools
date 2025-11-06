@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* biome-ignore lint/suspicious/noUnknownAtRules: @theme is a valid Tailwind CSS v4 directive */
 @theme {
   --color-background: oklch(100% 0 0);
   --color-foreground: oklch(9% 0.03 285.88);

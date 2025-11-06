@@ -1,5 +1,5 @@
 import { Plus, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
@@ -14,6 +14,7 @@ export function FavoritesView() {
   const [inputText, setInputText] = useState('')
   const [resultMessage, setResultMessage] = useState('')
   const [allCharacters, setAllCharacters] = useState<ChineseCharacter[]>([])
+  const inputId = useId()
 
   // 加载所有汉字数据
   useEffect(() => {
@@ -55,8 +56,11 @@ export function FavoritesView() {
       <Card>
         <CardContent className="pt-6 space-y-3">
           <div className="space-y-2">
-            <label className="text-sm font-medium">批量添加汉字</label>
+            <label htmlFor={inputId} className="text-sm font-medium">
+              批量添加汉字
+            </label>
             <Textarea
+              id={inputId}
               placeholder="输入或粘贴汉字，支持多行文本，会自动提取汉字并过滤空白字符"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}

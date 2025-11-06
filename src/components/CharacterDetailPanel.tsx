@@ -31,6 +31,156 @@ const FIVE_ELEMENT_COLORS: Record<
   土: { bg: 'bg-yellow-700', text: 'text-white', label: '土' },
 }
 
+interface DetailContentProps {
+  selectedCharacter: import('@/types').ChineseCharacter
+  clearSelection: () => void
+  elementConfig: { bg: string; text: string; label: string } | null
+  favorited: boolean
+  handleToggleFavorite: () => void
+  isFirst: boolean
+  isLast: boolean
+  navigateToPrevious: (results: import('@/types').ChineseCharacter[]) => void
+  navigateToNext: (results: import('@/types').ChineseCharacter[]) => void
+  searchResults: import('@/types').ChineseCharacter[]
+  currentIndex: number
+  strokeCount: number
+  radicalStr: string
+  structure: string | null
+}
+
+const DetailContent = ({
+  selectedCharacter,
+  clearSelection,
+  elementConfig,
+  favorited,
+  handleToggleFavorite,
+  isFirst,
+  isLast,
+  navigateToPrevious,
+  navigateToNext,
+  searchResults,
+  currentIndex,
+  strokeCount,
+  radicalStr,
+  structure,
+}: DetailContentProps) => (
+  <div className="flex flex-col h-full">
+    {/* 关闭按钮 - 仅桌面端显示 */}
+    <div className="hidden lg:flex justify-end p-2">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        onClick={clearSelection}
+      >
+        <X className="h-4 w-4" />
+      </Button>
+    </div>
+
+    {/* 大号汉字显示区 */}
+    <div className="text-center py-8 border-b">
+      <ruby className="text-8xl font-serif select-none">
+        {selectedCharacter.word}
+        <rt className="text-xl font-normal">{selectedCharacter.pinyin}</rt>
+      </ruby>
+    </div>
+
+    {/* 基本信息卡片 */}
+    <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <Card>
+        <CardContent className="pt-6 space-y-3">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">笔画数：</span>
+            <span className="font-medium">{strokeCount} 画</span>
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">部首：</span>
+            <span className="font-medium">{radicalStr}</span>
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">五行：</span>
+            {elementConfig ? (
+              <span
+                className={cn(
+                  'inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium',
+                  elementConfig.bg,
+                  elementConfig.text,
+                )}
+              >
+                {elementConfig.label}
+              </span>
+            ) : (
+              <span className="text-sm">未知</span>
+            )}
+          </div>
+
+          {structure && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">结构：</span>
+              <span className="font-medium">{structure}</span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* 释义区 */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-medium text-muted-foreground">释义</h3>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+              {selectedCharacter.explanation}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+
+    {/* 操作按钮区 */}
+    <div className="border-t p-4 space-y-2">
+      {/* 收藏按钮 */}
+      <Button
+        variant={favorited ? 'default' : 'outline'}
+        className="w-full"
+        onClick={handleToggleFavorite}
+      >
+        <Heart className={cn('h-4 w-4 mr-2', favorited && 'fill-current')} />
+        {favorited ? '已收藏' : '收藏'}
+      </Button>
+
+      {/* 导航按钮 */}
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          className="flex-1"
+          disabled={isFirst}
+          onClick={() => navigateToPrevious(searchResults)}
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          上一个
+        </Button>
+        <Button
+          variant="outline"
+          className="flex-1"
+          disabled={isLast}
+          onClick={() => navigateToNext(searchResults)}
+        >
+          下一个
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
+      </div>
+
+      {currentIndex >= 0 && (
+        <p className="text-xs text-center text-muted-foreground">
+          {currentIndex + 1} / {searchResults.length}
+        </p>
+      )}
+    </div>
+  </div>
+)
+
 export function CharacterDetailPanel() {
   const {
     selectedCharacter,
@@ -101,130 +251,27 @@ export function CharacterDetailPanel() {
     }
   }
 
-  const DetailContent = () => (
-    <div className="flex flex-col h-full">
-      {/* 关闭按钮 - 仅桌面端显示 */}
-      <div className="hidden lg:flex justify-end p-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={clearSelection}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* 大号汉字显示区 */}
-      <div className="text-center py-8 border-b">
-        <ruby className="text-8xl font-serif select-none">
-          {selectedCharacter.word}
-          <rt className="text-xl font-normal">{selectedCharacter.pinyin}</rt>
-        </ruby>
-      </div>
-
-      {/* 基本信息卡片 */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        <Card>
-          <CardContent className="pt-6 space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">笔画数：</span>
-              <span className="font-medium">{strokeCount} 画</span>
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">部首：</span>
-              <span className="font-medium">{radicalStr}</span>
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">五行：</span>
-              {elementConfig ? (
-                <span
-                  className={cn(
-                    'inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-medium',
-                    elementConfig.bg,
-                    elementConfig.text,
-                  )}
-                >
-                  {elementConfig.label}
-                </span>
-              ) : (
-                <span className="text-sm">未知</span>
-              )}
-            </div>
-
-            {structure && (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">结构：</span>
-                <span className="font-medium">{structure}</span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* 释义区 */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground">释义</h3>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                {selectedCharacter.explanation}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* 操作按钮区 */}
-      <div className="border-t p-4 space-y-2">
-        {/* 收藏按钮 */}
-        <Button
-          variant={favorited ? 'default' : 'outline'}
-          className="w-full"
-          onClick={handleToggleFavorite}
-        >
-          <Heart className={cn('h-4 w-4 mr-2', favorited && 'fill-current')} />
-          {favorited ? '已收藏' : '收藏'}
-        </Button>
-
-        {/* 导航按钮 */}
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="flex-1"
-            disabled={isFirst}
-            onClick={() => navigateToPrevious(searchResults)}
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            上一个
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1"
-            disabled={isLast}
-            onClick={() => navigateToNext(searchResults)}
-          >
-            下一个
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
-
-        {currentIndex >= 0 && (
-          <p className="text-xs text-center text-muted-foreground">
-            {currentIndex + 1} / {searchResults.length}
-          </p>
-        )}
-      </div>
-    </div>
-  )
-
   return (
     <>
       {/* 桌面端：固定侧边栏 */}
       {!isMobile && (
         <div className="w-96 border-l bg-background h-full flex flex-col overflow-hidden">
-          <DetailContent />
+          <DetailContent
+            selectedCharacter={selectedCharacter}
+            clearSelection={clearSelection}
+            elementConfig={elementConfig}
+            favorited={favorited}
+            handleToggleFavorite={handleToggleFavorite}
+            isFirst={isFirst}
+            isLast={isLast}
+            navigateToPrevious={navigateToPrevious}
+            navigateToNext={navigateToNext}
+            searchResults={searchResults}
+            currentIndex={currentIndex}
+            strokeCount={strokeCount}
+            radicalStr={radicalStr}
+            structure={structure}
+          />
         </div>
       )}
 
@@ -235,7 +282,22 @@ export function CharacterDetailPanel() {
             <SheetHeader className="sr-only">
               <SheetTitle>汉字详情</SheetTitle>
             </SheetHeader>
-            <DetailContent />
+            <DetailContent
+              selectedCharacter={selectedCharacter}
+              clearSelection={clearSelection}
+              elementConfig={elementConfig}
+              favorited={favorited}
+              handleToggleFavorite={handleToggleFavorite}
+              isFirst={isFirst}
+              isLast={isLast}
+              navigateToPrevious={navigateToPrevious}
+              navigateToNext={navigateToNext}
+              searchResults={searchResults}
+              currentIndex={currentIndex}
+              strokeCount={strokeCount}
+              radicalStr={radicalStr}
+              structure={structure}
+            />
           </SheetContent>
         </Sheet>
       )}
