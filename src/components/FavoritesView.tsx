@@ -1,11 +1,11 @@
+import { Plus, Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { loadCharacters } from '@/data/loader'
 import { useFavoritesStore } from '@/stores/useFavoritesStore'
 import type { ChineseCharacter } from '@/types'
-import { Plus, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { CharacterCard } from './CharacterCard'
 
 export function FavoritesView() {

@@ -1,6 +1,6 @@
-import type { ChineseCharacter } from '@/types'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import type { ChineseCharacter } from '@/types'
 
 interface FavoritesState {
   // 状态
@@ -51,7 +51,10 @@ export const useFavoritesStore = create<FavoritesState>()(
       },
 
       // 从文本中批量添加收藏
-      addFavoritesFromText: (text: string, allCharacters: ChineseCharacter[]) => {
+      addFavoritesFromText: (
+        text: string,
+        allCharacters: ChineseCharacter[],
+      ) => {
         // 提取文本中的汉字（使用正则匹配中文字符）
         const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || []
 
@@ -59,9 +62,7 @@ export const useFavoritesStore = create<FavoritesState>()(
         const uniqueChars = [...new Set(chineseChars)]
 
         // 创建快速查找表
-        const validCharMap = new Map(
-          allCharacters.map((c) => [c.word, c]),
-        )
+        const validCharMap = new Map(allCharacters.map((c) => [c.word, c]))
 
         let added = 0
         let skipped = 0

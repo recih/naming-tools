@@ -1,3 +1,6 @@
+import cnchar from 'cnchar'
+import { ChevronLeft, ChevronRight, Heart, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -15,9 +18,6 @@ import { cn } from '@/lib/utils'
 import { useDetailPanelStore } from '@/stores/useDetailPanelStore'
 import { useFavoritesStore } from '@/stores/useFavoritesStore'
 import { useSearchStore } from '@/stores/useSearchStore'
-import cnchar from 'cnchar'
-import { ChevronLeft, ChevronRight, Heart, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
 
 // 五行颜色映射
 const FIVE_ELEMENT_COLORS: Record<

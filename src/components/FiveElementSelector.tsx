@@ -1,3 +1,5 @@
+import { ChevronDown, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,8 +16,6 @@ import {
 import { cn } from '@/lib/utils'
 import { useSearchStore } from '@/stores/useSearchStore'
 import type { ChineseCharacter, FiveElement } from '@/types'
-import { ChevronDown, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
 
 // 五行配置
 const FIVE_ELEMENTS: Array<{
@@ -124,64 +124,66 @@ export function FiveElementSelector() {
               />
             </CollapsibleTrigger>
             {selectedFiveElements.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearFiveElements}
-              className="h-8"
-            >
-              <X className="h-4 w-4 mr-1" />
-              清空筛选
-            </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearFiveElements}
+                className="h-8"
+              >
+                <X className="h-4 w-4 mr-1" />
+                清空筛选
+              </Button>
+            )}
+          </div>
+          {selectedFiveElements.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              <span className="text-sm text-muted-foreground">已选择:</span>
+              {selectedFiveElements.map((element) => {
+                const config = FIVE_ELEMENTS.find((e) => e.element === element)
+                return (
+                  <Badge
+                    key={element}
+                    variant="default"
+                    className="cursor-pointer"
+                    onClick={() => toggleFiveElement(element)}
+                  >
+                    {config?.label}
+                    <X className="ml-1 h-3 w-3" />
+                  </Badge>
+                )
+              })}
+            </div>
           )}
-        </div>
-        {selectedFiveElements.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-2">
-            <span className="text-sm text-muted-foreground">已选择:</span>
-            {selectedFiveElements.map((element) => {
-              const config = FIVE_ELEMENTS.find((e) => e.element === element)
-              return (
-                <Badge
-                  key={element}
-                  variant="default"
-                  className="cursor-pointer"
-                  onClick={() => toggleFiveElement(element)}
-                >
-                  {config?.label}
-                  <X className="ml-1 h-3 w-3" />
-                </Badge>
-              )
-            })}
-          </div>
-        )}
-      </CardHeader>
-      <CollapsibleContent>
-        <CardContent>
-          <div className="flex flex-wrap gap-3">
-            {FIVE_ELEMENTS.map(({ element, label, color, textColor }) => {
-              const isSelected = selectedFiveElements.includes(element)
-              const count = elementCounts[element] || 0
-              return (
-                <button
-                  key={element}
-                  type="button"
-                  onClick={() => toggleFiveElement(element)}
-                  className={cn(
-                    'rounded-lg px-6 py-3 font-medium text-lg transition-all hover:scale-105 hover:shadow-lg flex items-baseline gap-2',
-                    isSelected
-                      ? `${color} ${textColor} ring-4 ring-offset-2 ring-gray-900`
-                      : `${color} ${textColor} opacity-60 hover:opacity-100`,
-                  )}
-                >
-                  <span>{label}</span>
-                  <span className="text-sm opacity-80">{formatCount(count)}</span>
-                </button>
-              )
-            })}
-          </div>
-        </CardContent>
-      </CollapsibleContent>
-    </Card>
+        </CardHeader>
+        <CollapsibleContent>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              {FIVE_ELEMENTS.map(({ element, label, color, textColor }) => {
+                const isSelected = selectedFiveElements.includes(element)
+                const count = elementCounts[element] || 0
+                return (
+                  <button
+                    key={element}
+                    type="button"
+                    onClick={() => toggleFiveElement(element)}
+                    className={cn(
+                      'rounded-lg px-6 py-3 font-medium text-lg transition-all hover:scale-105 hover:shadow-lg flex items-baseline gap-2',
+                      isSelected
+                        ? `${color} ${textColor} ring-4 ring-offset-2 ring-gray-900`
+                        : `${color} ${textColor} opacity-60 hover:opacity-100`,
+                    )}
+                  >
+                    <span>{label}</span>
+                    <span className="text-sm opacity-80">
+                      {formatCount(count)}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
     </Collapsible>
   )
 }

@@ -1,15 +1,15 @@
-/// <reference types="vite/client" />
-import appCss from '@/index.css?url'
-import { CharacterDetailPanel } from '@/components/CharacterDetailPanel'
-import { useDetailPanelStore } from '@/stores/useDetailPanelStore'
 import {
+  createRootRoute,
   HeadContent,
   Link,
   Outlet,
   Scripts,
-  createRootRoute,
 } from '@tanstack/react-router'
 import { Heart, Search } from 'lucide-react'
+import { CharacterDetailPanel } from '@/components/CharacterDetailPanel'
+/// <reference types="vite/client" />
+import appCss from '@/index.css?url'
+import { useDetailPanelStore } from '@/stores/useDetailPanelStore'
 
 function NotFound() {
   return (
@@ -42,6 +42,7 @@ export const Route = createRootRoute({
   component: RootComponent,
   notFoundComponent: NotFound,
   shellComponent: RootDocument,
+  ssr: false,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {

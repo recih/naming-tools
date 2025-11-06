@@ -1,5 +1,5 @@
-import type { ChineseCharacter } from '@/types'
 import { create } from 'zustand'
+import type { ChineseCharacter } from '@/types'
 
 interface DetailPanelState {
   // 状态

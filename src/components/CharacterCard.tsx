@@ -1,3 +1,4 @@
+import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { getFiveElement } from '@/data/loader'
@@ -5,7 +6,6 @@ import { cn } from '@/lib/utils'
 import { useDetailPanelStore } from '@/stores/useDetailPanelStore'
 import { useFavoritesStore } from '@/stores/useFavoritesStore'
 import type { ChineseCharacter } from '@/types'
-import { Heart } from 'lucide-react'
 
 interface CharacterCardProps {
   character: ChineseCharacter

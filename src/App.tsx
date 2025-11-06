@@ -1,3 +1,4 @@
+import { Heart, Search } from 'lucide-react'
 import { CharacterDetailPanel } from '@/components/CharacterDetailPanel'
 import { FavoritesView } from '@/components/FavoritesView'
 import { FiveElementSelector } from '@/components/FiveElementSelector'
@@ -5,7 +6,6 @@ import { RadicalSelector } from '@/components/RadicalSelector'
 import { SearchResults } from '@/components/SearchResults'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDetailPanelStore } from '@/stores/useDetailPanelStore'
-import { Heart, Search } from 'lucide-react'
 
 function App() {
   const { selectedCharacter } = useDetailPanelStore()

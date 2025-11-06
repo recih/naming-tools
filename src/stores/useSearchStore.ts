@@ -1,3 +1,5 @@
+import cnchar from 'cnchar'
+import { create } from 'zustand'
 import {
   filterByFiveElements,
   getAllRadicals,
@@ -11,8 +13,6 @@ import type {
   SearchMode,
   SortMode,
 } from '@/types'
-import cnchar from 'cnchar'
-import { create } from 'zustand'
 
 interface SearchState {
   // 状态
@@ -200,7 +200,9 @@ export const useSearchStore = create<SearchState>((set, get) => ({
 
   // 切换五行选择器展开/折叠状态
   toggleFiveElementSelector: () => {
-    set((state) => ({ isFiveElementSelectorOpen: !state.isFiveElementSelectorOpen }))
+    set((state) => ({
+      isFiveElementSelectorOpen: !state.isFiveElementSelectorOpen,
+    }))
   },
 }))
 
