@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "naming-tools",
-  "compatibility_date": "2025-01-06",
+  "compatibility_date": "2025-10-11",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
   "assets": {
@@ -11,7 +11,7 @@
   "r2_buckets": [
     {
       "binding": "WORD_DATA",
-      "bucket_name": "naming-tools-data"
+      "bucket_name": "naming-tools-data",
     }
   ]
 }

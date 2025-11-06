@@ -1,26 +1,27 @@
-import path from 'node:path'
 import { cloudflare } from '@cloudflare/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
+import { nitroV2Plugin } from '@tanstack/nitro-v2-vite-plugin'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
-import react from '@vitejs/plugin-react'
+import tanstackRouter from '@tanstack/router-plugin/vite'
+import viteReact from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import viteTsConfigPaths from 'vite-tsconfig-paths'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [
-    TanStackRouterVite({
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
+    tanstackRouter({
+      target: 'react',
       autoCodeSplitting: true,
     }),
-    // Only enable Cloudflare plugin in production builds
-    mode === 'production' && cloudflare({ viteEnvironment: { name: 'ssr' } }),
-    tanstackStart(),
-    react(),
+    nitroV2Plugin(),
+    // this is the plugin that enables path aliases
+    viteTsConfigPaths({
+      projects: ['./tsconfig.json'],
+    }),
     tailwindcss(),
+    tanstackStart(),
+    viteReact(),
   ].filter(Boolean),
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
 }))

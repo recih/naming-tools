@@ -76,7 +76,7 @@ The application uses **file-based routing** with TanStack Router:
 
 3. **Data Sources**:
    - `chinese-xinhua` submodule: Provides character data (word, pinyin, explanation) stored in Cloudflare R2
-   - `Cloudflare R2`: Stores word.json (26 MB) in `naming-tools-data` bucket, served via `/api/word.json` API route
+   - `Cloudflare R2`: Stores word.json (26 MB) in `naming-tools-data` bucket, served via `/api/word-json` API route
    - `cnchar-radical`: Provides accurate radical detection at runtime
    - `cnchar-info`: Provides five element (五行) data at runtime
    - Data is fetched once and cached in module-level variables with aggressive browser caching (1 year)
@@ -129,7 +129,7 @@ The application uses **file-based routing** with TanStack Router:
 - **Cloudflare Workers Configuration**:
   - `wrangler.jsonc`: Cloudflare Workers configuration with R2 bucket binding
   - R2 bucket `naming-tools-data` bound as `WORD_DATA` for character data storage
-  - API route `src/routes/api/word.json.ts` serves data from R2 with 1-year browser caching
+  - API route `src/routes/api/word-json.ts` serves data from R2 with 1-year browser caching
   - `nodejs_compat` compatibility flag for Node.js APIs
   - Static assets served from `public/` directory
   - SPA fallback for client-side routing
@@ -194,7 +194,7 @@ The `.vscode/settings.json` file provides optimal development experience:
 
 2. **Upload character data to R2**:
    ```bash
-   pnpm wrangler r2 object put naming-tools-data/word.json --file=./chinese-xinhua/data/word.json
+   pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./chinese-xinhua/data/word.json
    ```
 
 3. **Login to Wrangler**:

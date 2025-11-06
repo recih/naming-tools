@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "deploy": "pnpm build && wrangler deploy",
     "cf-typegen": "wrangler types",
-    "check": "biome check --write"
+    "check": "biome check --write",
+    "r2-upload": "pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./chinese-xinhua/data/word.json",
+    "r2-upload:local": "pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./chinese-xinhua/data/word.json --local"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.6",

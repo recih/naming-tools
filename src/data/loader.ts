@@ -2,6 +2,7 @@ import cnchar from 'cnchar'
 import info from 'cnchar-info'
 import poly from 'cnchar-poly'
 import radical from 'cnchar-radical'
+import { getWordData } from '@/routes/api/word-json'
 import type { ChineseCharacter, FiveElement, RadicalIndex } from '@/types'
 
 // 初始化 cnchar 插件（SSR-safe：只在浏览器环境初始化）
@@ -23,7 +24,7 @@ export async function loadCharacters(): Promise<ChineseCharacter[]> {
   }
 
   try {
-    const response = await fetch('/api/word.json')
+    const response = await fetch('/api/word-json')
     if (!response.ok) {
       throw new Error(`Failed to load character data: ${response.statusText}`)
     }
