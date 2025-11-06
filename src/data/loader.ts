@@ -1,5 +1,13 @@
 import type { ChineseCharacter, FiveElement, RadicalIndex } from '@/types'
 import cnchar from 'cnchar'
+import info from 'cnchar-info'
+import poly from 'cnchar-poly'
+import radical from 'cnchar-radical'
+
+// 初始化 cnchar 插件（SSR-safe：只在浏览器环境初始化）
+if (typeof window !== 'undefined') {
+  cnchar.use(radical, poly, info)
+}
 
 // 延迟加载汉字数据
 let charactersData: ChineseCharacter[] | null = null

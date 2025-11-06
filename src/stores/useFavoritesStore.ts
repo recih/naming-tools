@@ -90,6 +90,24 @@ export const useFavoritesStore = create<FavoritesState>()(
     }),
     {
       name: 'chinese-character-favorites', // localStorage key
+      storage: {
+        getItem: (name) => {
+          // SSR-safe: only access localStorage in browser
+          if (typeof window === 'undefined') return null
+          const value = localStorage.getItem(name)
+          return value ? JSON.parse(value) : null
+        },
+        setItem: (name, value) => {
+          // SSR-safe: only access localStorage in browser
+          if (typeof window === 'undefined') return
+          localStorage.setItem(name, JSON.stringify(value))
+        },
+        removeItem: (name) => {
+          // SSR-safe: only access localStorage in browser
+          if (typeof window === 'undefined') return
+          localStorage.removeItem(name)
+        },
+      },
     },
   ),
 )

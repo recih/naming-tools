@@ -26,3 +26,8 @@ dist-ssr
 # Build
 build
 .vite
+.output
+.wrangler
+
+# TanStack Router
+src/routeTree.gen.ts

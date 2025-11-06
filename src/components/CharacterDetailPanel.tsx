@@ -42,9 +42,13 @@ export function CharacterDetailPanel() {
   const { isFavorite, addFavorite, removeFavorite } = useFavoritesStore()
 
   // 检测是否为移动端（小于 lg 断点，即 1024px）
+  // SSR-safe: 默认假设桌面端，客户端挂载后再检测
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
+    // SSR-safe: 只在浏览器环境中执行
+    if (typeof window === 'undefined') return
+
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024)
     }
