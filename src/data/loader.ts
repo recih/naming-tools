@@ -23,7 +23,7 @@ export async function loadCharacters(): Promise<ChineseCharacter[]> {
   }
 
   try {
-    const response = await fetch('/chinese-xinhua/word.json')
+    const response = await fetch('/api/word.json')
     if (!response.ok) {
       throw new Error(`Failed to load character data: ${response.statusText}`)
     }

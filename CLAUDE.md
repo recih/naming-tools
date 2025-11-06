@@ -76,10 +76,11 @@ The application uses **file-based routing** with TanStack Router:
 2. **Five Element Detection with cnchar-info**: Uses `cnchar.info(char)` to get five element (五行) properties. The `getFiveElement()` helper in `src/data/loader.ts` extracts the `fiveElement` field from the cnchar.info() result. Returns one of: 金, 木, 水, 火, 土.
 
 3. **Data Sources**:
-   - `chinese-xinhua` submodule: Provides character data (word, pinyin, explanation) via `/chinese-xinhua/word.json` (symlink points to data directory only)
+   - `chinese-xinhua` submodule: Provides character data (word, pinyin, explanation) stored in Cloudflare R2
+   - `Cloudflare R2`: Stores word.json (26 MB) in `naming-tools-data` bucket, served via `/api/word.json` API route
    - `cnchar-radical`: Provides accurate radical detection at runtime
    - `cnchar-info`: Provides five element (五行) data at runtime
-   - Data is fetched once and cached in module-level variables
+   - Data is fetched once and cached in module-level variables with aggressive browser caching (1 year)
 
 4. **State Management** (Zustand):
    - `useSearchStore`: Manages radical selection, five element selection, search mode (AND/OR), search results, and collapsible panel states. Auto-triggers search on radical/five element toggle.
@@ -127,11 +128,14 @@ The application uses **file-based routing** with TanStack Router:
     - `FavoritesView.tsx`: Saved favorites display with batch import/export feature
 
 - **Cloudflare Workers Configuration**:
-  - `wrangler.jsonc`: Cloudflare Workers configuration
+  - `wrangler.jsonc`: Cloudflare Workers configuration with R2 bucket binding
+  - R2 bucket `naming-tools-data` bound as `WORD_DATA` for character data storage
+  - API route `src/routes/api/word.json.ts` serves data from R2 with 1-year browser caching
   - `nodejs_compat` compatibility flag for Node.js APIs
   - Static assets served from `public/` directory
   - SPA fallback for client-side routing
   - Cloudflare Vite plugin conditionally enabled only in production mode to prevent development errors
+  - **Data Storage Solution**: Uses R2 instead of Workers Assets to bypass 25MB deployment limit (word.json is 26MB)
 
 ### Important Implementation Notes
 
@@ -182,13 +186,41 @@ The `.vscode/settings.json` file provides optimal development experience:
 
 ## Deployment to Cloudflare Workers
 
-1. Ensure you're logged into Wrangler: `wrangler login`
-2. Build and deploy: `pnpm deploy`
-3. The app will be deployed to `*.workers.dev` or your configured custom domain
-4. Static assets (including chinese-xinhua data) are automatically included
-5. The app runs in CSR (Client-Side Rendering) mode for maximum compatibility
+### Initial Setup (One-time)
 
-**Note**: The Cloudflare Vite plugin is only enabled in production builds to avoid development errors with Node.js modules.
+1. **Create R2 bucket** (if not already created):
+   ```bash
+   pnpm wrangler r2 bucket create naming-tools-data
+   ```
+
+2. **Upload character data to R2**:
+   ```bash
+   pnpm wrangler r2 object put naming-tools-data/word.json --file=./chinese-xinhua/data/word.json
+   ```
+
+3. **Login to Wrangler**:
+   ```bash
+   pnpm wrangler login
+   ```
+
+### Regular Deployment
+
+1. Build and deploy: `pnpm deploy`
+2. The app will be deployed to `*.workers.dev` or your configured custom domain
+3. Character data is served from R2 bucket via `/api/word.json` API route
+4. The app runs in CSR (Client-Side Rendering) mode for maximum compatibility
+
+### Updating Character Data
+
+To update the word.json file in production:
+```bash
+pnpm wrangler r2 object put naming-tools-data/word.json --file=./chinese-xinhua/data/word.json
+```
+
+**Notes**:
+- The Cloudflare Vite plugin is only enabled in production builds to avoid development errors with Node.js modules
+- R2 bucket `naming-tools-data` must exist and be bound in `wrangler.jsonc` before deployment
+- Free tier supports ~33,000 users/day with unlimited bandwidth (egress is free)
 
 ## Type Definitions
 

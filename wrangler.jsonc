@@ -7,5 +7,11 @@
   "assets": {
     "directory": "./public",
     "not_found_handling": "single-page-application"
-  }
+  },
+  "r2_buckets": [
+    {
+      "binding": "WORD_DATA",
+      "bucket_name": "naming-tools-data"
+    }
+  ]
 }
