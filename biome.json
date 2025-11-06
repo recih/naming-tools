@@ -14,7 +14,8 @@
       ".vite",
       "chinese-xinhua",
       "tsconfig.json",
-      "tsconfig.*.json"
+      "tsconfig.*.json",
+      "src/routeTree.gen.ts"
     ]
   },
   "formatter": {
