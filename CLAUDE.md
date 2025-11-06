@@ -40,6 +40,10 @@ pnpm build                                # Build for production
 pnpm preview                              # Preview production build locally
 pnpm deploy                               # Build and deploy to Cloudflare Workers
 pnpm cf-typegen                           # Generate Cloudflare binding types
+
+# R2 Data Management
+pnpm r2-upload                            # Upload word.json to production R2 bucket
+pnpm r2-upload:local                      # Upload word.json to local R2 bucket (for wrangler dev)
 ```
 
 **Note**: cnchar plugins (`cnchar-radical`, `cnchar-poly`, `cnchar-info`) are initialized in two places:
@@ -102,7 +106,7 @@ The application uses **file-based routing** with TanStack Router:
 
 - **Tailwind CSS v4**: Uses `@tailwindcss/vite` plugin (NOT PostCSS plugin). Configuration is in `src/index.css` using `@import "tailwindcss"` and `@theme` directive with `oklch` color values.
 
-- **Path Aliases**: `@/` maps to `./src/` (configured in both `vite.config.ts` using Vite's `resolve.alias` and `tsconfig.app.json`)
+- **Path Aliases**: `@/` maps to `./src/` (configured using `vite-tsconfig-paths` plugin in `vite.config.ts` and `tsconfig.json`)
 
 - **Biome Configuration**:
   - 2-space indentation, single quotes, minimal semicolons
@@ -111,9 +115,11 @@ The application uses **file-based routing** with TanStack Router:
   - Integrated with VS Code settings
 
 - **TypeScript Configuration** (ES2022):
+  - Single consolidated `tsconfig.json` (removed separate `tsconfig.app.json` and project references)
   - Target: ES2022 (upgraded from ES2020)
   - `moduleResolution: "bundler"` for modern bundler workflows
-  - `types: ["vite/client"]` for Vite type definitions
+  - `types: ["vite/client", "./worker-configuration.d.ts"]` for Vite and Cloudflare Workers type definitions
+  - Auto-generated `worker-configuration.d.ts` via `pnpm cf-typegen` provides type safety for Cloudflare Workers bindings
   - Strict linting with `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`, `noUncheckedSideEffectImports`
 
 - **Component Structure**:
@@ -129,11 +135,14 @@ The application uses **file-based routing** with TanStack Router:
 - **Cloudflare Workers Configuration**:
   - `wrangler.jsonc`: Cloudflare Workers configuration with R2 bucket binding
   - R2 bucket `naming-tools-data` bound as `WORD_DATA` for character data storage
-  - API route `src/routes/api/word-json.ts` serves data from R2 with 1-year browser caching
+  - API route `src/routes/api/word-json.ts` uses TanStack Start server functions (`createServerFn`) pattern for type-safe data fetching
+  - Exports `getWordData()` and `getWordDataRaw()` server functions for typed R2 data access
+  - Uses `env` from `cloudflare:workers` for direct access to Workers bindings
+  - Serves data from R2 with 1-year browser caching (`Cache-Control: public, max-age=31536000, immutable`)
   - `nodejs_compat` compatibility flag for Node.js APIs
   - Static assets served from `public/` directory
   - SPA fallback for client-side routing
-  - Cloudflare Vite plugin conditionally enabled only in production mode to prevent development errors
+  - Cloudflare Vite plugin enabled in production mode
   - **Data Storage Solution**: Uses R2 instead of Workers Assets to bypass 25MB deployment limit (word.json is 26MB)
 
 ### Important Implementation Notes
@@ -206,14 +215,21 @@ The `.vscode/settings.json` file provides optimal development experience:
 
 1. Build and deploy: `pnpm deploy`
 2. The app will be deployed to `*.workers.dev` or your configured custom domain
-3. Character data is served from R2 bucket via `/api/word.json` API route
+3. Character data is served from R2 bucket via `/api/word-json` API route
 4. The app runs in CSR (Client-Side Rendering) mode for maximum compatibility
 
 ### Updating Character Data
 
 To update the word.json file in production:
 ```bash
-pnpm wrangler r2 object put naming-tools-data/word.json --file=./chinese-xinhua/data/word.json
+pnpm r2-upload                            # Upload to production R2 bucket
+# OR use the longer form:
+pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./chinese-xinhua/data/word.json
+```
+
+For local development with wrangler dev:
+```bash
+pnpm r2-upload:local                      # Upload to local R2 bucket
 ```
 
 **Notes**:
@@ -293,14 +309,14 @@ naming-tools/
 ├── biome.json                      # Biome formatter/linter config
 ├── components.json                 # shadcn/ui configuration
 ├── tsr.config.json                 # TanStack Router codegen config
-├── tsconfig.json                   # TypeScript project references
-├── tsconfig.app.json               # App TypeScript config (ES2022)
+├── tsconfig.json                   # Consolidated TypeScript config (ES2022)
 ├── tsconfig.node.json              # Node TypeScript config
 ├── vite.config.ts                  # Vite 7 configuration
+├── worker-configuration.d.ts       # Cloudflare Workers type definitions (auto-generated)
 └── wrangler.jsonc                  # Cloudflare Workers config
 ```
 
-## Recent Updates (Updated: 2025-01-06)
+## Recent Updates (Updated: 2025-01-07)
 
 ### Migration to TanStack Start (commit cab2d72)
 - **Major architectural change**: Migrated from Vite SPA to TanStack Start 1.134.13 with full-stack capabilities
@@ -316,6 +332,15 @@ naming-tools/
   - Fixed missing styles by implementing proper TanStack Start document structure
   - Fixed SSR errors in CharacterDetailPanel and useFavoritesStore
   - Fixed cnchar initialization warnings
+
+### Cloudflare Workers Integration Refactor (commits 8c1df53, b3a95a8)
+- **TanStack Start server functions**: Migrated API route to use `createServerFn()` pattern for type-safe data fetching
+- **R2 path structure**: Updated from `word.json` to `chinese-xinhua/word.json` for better organization
+- **TypeScript consolidation**: Merged `tsconfig.app.json` into single `tsconfig.json` configuration
+- **Worker types**: Added auto-generated `worker-configuration.d.ts` via `wrangler types` for full type safety with Cloudflare bindings
+- **Vite plugin reorganization**: Improved plugin ordering and added `vite-tsconfig-paths` for better path resolution
+- **Helper scripts**: Added `pnpm r2-upload` and `pnpm r2-upload:local` for easier R2 data management
+- **Biome lint fixes**: Resolved unused parameters, nested component definitions, and label accessibility issues
 
 ### Configuration Improvements (commit 2d89ea3)
 - **VS Code setup**: Added `.vscode/settings.json` with Biome formatter integration and routeTree.gen.ts exclusions
