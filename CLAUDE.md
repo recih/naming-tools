@@ -15,7 +15,7 @@ Built with TanStack Start, React 18, TypeScript, and modern web technologies. De
 
 - **TanStack Start 1.134.13**: Full-stack React framework with file-based routing and SSR capabilities
 - **TanStack Router 1.134.13**: Type-safe routing with auto-generated route tree and code-splitting
-- **React 18**: UI framework with hooks and modern patterns
+- **React 19**: UI framework with hooks and modern patterns
 - **Vite 7.2.1**: Build tool and development server (upgraded from 5.4.21 for TanStack Start compatibility)
 - **Cloudflare Workers**: Serverless deployment platform via Wrangler 4.45.4
 - **Tailwind CSS v4**: Utility-first CSS framework using @tailwindcss/vite plugin
@@ -33,8 +33,7 @@ git submodule update --init --recursive   # Initialize chinese-xinhua data submo
 pnpm dev                                  # Start dev server (http://localhost:5173)
 
 # Code Quality
-pnpm lint                                 # Run Biome linting
-pnpm format                               # Format code with Biome
+pnpm check                                # Run Biome format and linting with fix
 
 # Build & Deploy
 pnpm build                                # Build for production
