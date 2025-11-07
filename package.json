@@ -11,7 +11,7 @@
     "cf-typegen": "wrangler types",
     "check": "biome check --write",
     "r2-upload": "pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./chinese-xinhua/data/word.json",
-    "r2-upload:local": "pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./chinese-xinhua/data/word.json --local"
+    "r2-upload:remote": "pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./chinese-xinhua/data/word.json --remote"
   },
   "dependencies": {
     "@radix-ui/react-collapsible": "^1.1.12",

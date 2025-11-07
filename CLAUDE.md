@@ -44,8 +44,8 @@ pnpm deploy                               # Build and deploy to Cloudflare Worke
 pnpm cf-typegen                           # Generate Cloudflare binding types
 
 # R2 Data Management
-pnpm r2-upload                            # Upload word.json to production R2 bucket
-pnpm r2-upload:local                      # Upload word.json to local R2 bucket (for wrangler dev)
+pnpm r2-upload                            # Upload word.json to local R2 bucket (default for development)
+pnpm r2-upload:remote                     # Upload word.json to remote/production R2 bucket
 ```
 
 **Note**: cnchar plugins (`cnchar-radical`, `cnchar-poly`, `cnchar-info`) are initialized in two places:
@@ -184,7 +184,7 @@ Before running the development server for the first time:
 1. **Install dependencies**: `pnpm install`
 2. **Initialize submodule**: `git submodule update --init --recursive`
 3. **Generate Cloudflare types**: `pnpm cf-typegen` (creates `worker-configuration.d.ts`)
-4. **Upload data to R2**: `pnpm r2-upload` or `pnpm r2-upload:local` for local development
+4. **Upload data to R2**: `pnpm r2-upload` (uploads to local R2 for development)
 5. **Start dev server**: `pnpm dev`
 
 ### Daily Development
@@ -216,7 +216,9 @@ The `.vscode/settings.json` file provides optimal development experience:
 
 2. **Upload character data to R2**:
    ```bash
-   pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./chinese-xinhua/data/word.json
+   pnpm r2-upload:remote
+   # OR use the full command:
+   # pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./chinese-xinhua/data/word.json --remote
    ```
 
 3. **Login to Wrangler**:
@@ -233,16 +235,18 @@ The `.vscode/settings.json` file provides optimal development experience:
 
 ### Updating Character Data
 
-To update the word.json file in production:
+To update the word.json file:
+
+**For local development:**
 ```bash
-pnpm r2-upload                            # Upload to production R2 bucket
-# OR use the longer form:
-pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./chinese-xinhua/data/word.json
+pnpm r2-upload                            # Upload to local R2 bucket (default)
 ```
 
-For local development with wrangler dev:
+**For production/remote:**
 ```bash
-pnpm r2-upload:local                      # Upload to local R2 bucket
+pnpm r2-upload:remote                     # Upload to remote R2 bucket
+# OR use the longer form:
+pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./chinese-xinhua/data/word.json --remote
 ```
 
 **Notes**:
@@ -351,7 +355,7 @@ naming-tools/
 - **TypeScript consolidation**: Merged `tsconfig.app.json` into single `tsconfig.json` configuration
 - **Worker types**: Added auto-generated `worker-configuration.d.ts` via `wrangler types` for full type safety with Cloudflare bindings
 - **Vite plugin reorganization**: Improved plugin ordering and added `vite-tsconfig-paths` for better path resolution
-- **Helper scripts**: Added `pnpm r2-upload` and `pnpm r2-upload:local` for easier R2 data management
+- **Helper scripts**: Added `pnpm r2-upload` (local) and `pnpm r2-upload:remote` for easier R2 data management
 - **Biome lint fixes**: Resolved unused parameters, nested component definitions, and label accessibility issues
 
 ### Configuration Improvements (commit 2d89ea3)
