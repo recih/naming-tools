@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This is a Chinese character lookup tool that allows users to search for characters by:
+
 - Selecting one or more radicals (偏旁部首)
 - Filtering by five elements (五行: 金木水火土)
 - Combining both radical and five element filters
@@ -49,6 +50,7 @@ pnpm r2-upload:remote                     # Upload word.json to remote/productio
 ```
 
 **Note**: cnchar plugins (`cnchar-radical`, `cnchar-poly`, `cnchar-info`) are initialized in two places:
+
 - `src/main.tsx`: For client-side rendering
 - `src/data/loader.ts`: SSR-safe initialization with `typeof window !== 'undefined'` check
 
@@ -61,7 +63,6 @@ The application uses **file-based routing** with TanStack Router:
 - **`src/routes/__root.tsx`**: Root layout component with header, navigation, and detail panel
   - Imports CSS directly via `import '@/index.css'`
   - Contains `NotFound` component for 404 handling
-  - Runs in CSR (Client-Side Rendering) mode with `ssr: false`
 
 - **`src/routes/index.tsx`**: Search page (/) with RadicalSelector, FiveElementSelector, and SearchResults
 
@@ -201,6 +202,7 @@ Before running the development server for the first time:
 ### VS Code Setup
 
 The `.vscode/settings.json` file provides optimal development experience:
+
 - Excludes `routeTree.gen.ts` from file watching, search, and marks it read-only
 - Sets Biome as default formatter for all file types
 - Enables auto-organize imports on save
@@ -210,11 +212,13 @@ The `.vscode/settings.json` file provides optimal development experience:
 ### Initial Setup (One-time)
 
 1. **Create R2 bucket** (if not already created):
+
    ```bash
    pnpm wrangler r2 bucket create naming-tools-data
    ```
 
 2. **Upload character data to R2**:
+
    ```bash
    pnpm r2-upload:remote
    # OR use the full command:
@@ -238,11 +242,13 @@ The `.vscode/settings.json` file provides optimal development experience:
 To update the word.json file:
 
 **For local development:**
+
 ```bash
 pnpm r2-upload                            # Upload to local R2 bucket (default)
 ```
 
 **For production/remote:**
+
 ```bash
 pnpm r2-upload:remote                     # Upload to remote R2 bucket
 # OR use the longer form:
@@ -250,6 +256,7 @@ pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./
 ```
 
 **Notes**:
+
 - The Cloudflare Vite plugin is always enabled in both development and production
 - R2 bucket `naming-tools-data` must exist and be bound in `wrangler.jsonc` before deployment
 - Free tier supports ~33,000 users/day with unlimited bandwidth (egress is free)
@@ -259,21 +266,24 @@ pnpm wrangler r2 object put naming-tools-data/chinese-xinhua/word.json --file=./
 Key types defined in `src/types/index.ts`:
 
 - **`FiveElement`**: Union type for five elements
+
   ```typescript
-  type FiveElement = '金' | '木' | '水' | '火' | '土'
+  type FiveElement = "金" | "木" | "水" | "火" | "土";
   ```
 
 - **`SearchMode`**: Union type for radical search modes
+
   ```typescript
-  type SearchMode = 'AND' | 'OR'
+  type SearchMode = "AND" | "OR";
   ```
 
 - **`ChineseCharacter`**: Main character data type
+
   ```typescript
   interface ChineseCharacter {
-    word: string
-    pinyin: string
-    explanation: string
+    word: string;
+    pinyin: string;
+    explanation: string;
     // Note: fiveElement field is computed on-demand via getFiveElement(), not stored
   }
   ```
@@ -281,7 +291,7 @@ Key types defined in `src/types/index.ts`:
 - **`RadicalIndex`**: Mapping from radicals to characters
   ```typescript
   interface RadicalIndex {
-    [radical: string]: ChineseCharacter[]
+    [radical: string]: ChineseCharacter[];
   }
   ```
 
@@ -336,10 +346,10 @@ naming-tools/
 ## Recent Updates (Updated: 2025-01-07)
 
 ### Migration to TanStack Start (commit cab2d72)
+
 - **Major architectural change**: Migrated from Vite SPA to TanStack Start 1.134.13 with full-stack capabilities
 - **File-based routing**: Converted tab-based navigation to file-based routes (/, /favorites)
 - **Vite upgrade**: Upgraded from 5.4.21 to 7.2.1 for TanStack Start compatibility
-- **CSR mode**: Application runs in pure Client-Side Rendering mode (`ssr: false`)
 - **Cloudflare Workers**: Added deployment support with always-enabled Cloudflare Vite plugin
 - **New dependencies**: TanStack Router, TanStack Start, @cloudflare/vite-plugin, Wrangler
 - **CSS loading**: Direct CSS import via `import '@/index.css'` in root route
@@ -350,6 +360,7 @@ naming-tools/
   - Fixed cnchar initialization warnings
 
 ### Cloudflare Workers Integration Refactor (commits 8c1df53, b3a95a8)
+
 - **TanStack Start server functions**: Migrated API route to use `createServerFn()` pattern for type-safe data fetching
 - **R2 path structure**: Updated from `word.json` to `chinese-xinhua/word.json` for better organization
 - **TypeScript consolidation**: Merged `tsconfig.app.json` into single `tsconfig.json` configuration
@@ -359,23 +370,27 @@ naming-tools/
 - **Biome lint fixes**: Resolved unused parameters, nested component definitions, and label accessibility issues
 
 ### Configuration Improvements (commit 2d89ea3)
+
 - **VS Code setup**: Added `.vscode/settings.json` with Biome formatter integration and routeTree.gen.ts exclusions
 - **TypeScript modernization**: Upgraded to ES2022 target with stricter linting options
 - **Biome updates**: Added routeTree.gen.ts to ignore list for cleaner linting
 - **Git configuration**: Updated .gitignore to include .vscode/settings.json and exclude tmp/ directory
 
 ### UI Enhancements (commit f3e81e0, 3 days ago)
+
 - **Collapsible filters**: Added collapsible sections to RadicalSelector and FiveElementSelector
 - **Batch favorites**: Implemented batch import/export functionality in FavoritesView
 - **shadcn/ui components**: Added Collapsible and Textarea components
 - **Agent configurations**: Added shadcn-specific Claude Code agents for better component development
 
 ### Character Detail Panel (commits 48d53dd, 4d82858)
+
 - **Side panel**: Implemented Sheet-based detail panel for character information
 - **Layout improvements**: Fixed scroll behavior and responsive design
 - **Store integration**: Added useDetailPanelStore for detail panel state management
 
 ### Five Element Feature (commit df7dfc0)
+
 - **Five element filtering**: Added complete 五行 (金木水火土) filtering system
 - **Color-coded badges**: Traditional color associations for each element
 - **Combined search**: Support for radical + five element combined filtering
@@ -407,71 +422,71 @@ Always use shadcn mcp to install components instead of create components by your
 
 ### Core Responsibilities
 
-* Follow user requirements precisely and to the letter
-* Think step-by-step: describe your component architecture plan in detailed pseudocode first
-* Confirm approach, then write complete, working component code
-* Write correct, best practice, DRY, bug-free, fully functional components
-* Prioritize accessibility and user experience over complexity
-* Implement all requested functionality completely
-* Leave NO todos, placeholders, or missing pieces
-* Include all required imports, types, and proper component exports
-* Be concise and minimize unnecessary prose
+- Follow user requirements precisely and to the letter
+- Think step-by-step: describe your component architecture plan in detailed pseudocode first
+- Confirm approach, then write complete, working component code
+- Write correct, best practice, DRY, bug-free, fully functional components
+- Prioritize accessibility and user experience over complexity
+- Implement all requested functionality completely
+- Leave NO todos, placeholders, or missing pieces
+- Include all required imports, types, and proper component exports
+- Be concise and minimize unnecessary prose
 
 ### Technology Stack Focus
 
-* **shadcn/ui**: Component patterns, theming, and customization
-* **Radix UI**: Primitive components and accessibility patterns
-* **TypeScript**: Strict typing with component props and variants
-* **Tailwind CSS**: Utility-first styling with shadcn design tokens
-* **Class Variance Authority (CVA)**: Component variant management
-* **React**: Modern patterns with hooks and composition
+- **shadcn/ui**: Component patterns, theming, and customization
+- **Radix UI**: Primitive components and accessibility patterns
+- **TypeScript**: Strict typing with component props and variants
+- **Tailwind CSS**: Utility-first styling with shadcn design tokens
+- **Class Variance Authority (CVA)**: Component variant management
+- **React**: Modern patterns with hooks and composition
 
 ### Code Implementation Rules
 
 #### Component Architecture
 
-* Use forwardRef for all interactive components
-* Implement proper TypeScript interfaces for all props
-* Use CVA for variant management and conditional styling
-* Follow shadcn/ui naming conventions and file structure
-* Create compound components when appropriate (Card.Header, Card.Content)
-* Export components with proper display names
+- Use forwardRef for all interactive components
+- Implement proper TypeScript interfaces for all props
+- Use CVA for variant management and conditional styling
+- Follow shadcn/ui naming conventions and file structure
+- Create compound components when appropriate (Card.Header, Card.Content)
+- Export components with proper display names
 
 #### Styling Guidelines
 
-* Always use Tailwind classes with shadcn design tokens
-* Use CSS variables for theme-aware styling (hsl(var(--primary)))
-* Implement proper focus states and accessibility indicators
-* Follow shadcn/ui spacing and typography scales
-* Use conditional classes with cn() utility function
-* Support dark mode through CSS variables
+- Always use Tailwind classes with shadcn design tokens
+- Use CSS variables for theme-aware styling (hsl(var(--primary)))
+- Implement proper focus states and accessibility indicators
+- Follow shadcn/ui spacing and typography scales
+- Use conditional classes with cn() utility function
+- Support dark mode through CSS variables
 
 #### Accessibility Standards
 
-* Implement ARIA labels, roles, and properties correctly
-* Ensure keyboard navigation works properly
-* Provide proper focus management and visual indicators
-* Include screen reader support with appropriate announcements
-* Test with assistive technologies in mind
-* Follow WCAG 2.1 AA guidelines
+- Implement ARIA labels, roles, and properties correctly
+- Ensure keyboard navigation works properly
+- Provide proper focus management and visual indicators
+- Include screen reader support with appropriate announcements
+- Test with assistive technologies in mind
+- Follow WCAG 2.1 AA guidelines
 
 #### shadcn/ui Specific
 
-* Extend existing shadcn components rather than rebuilding from scratch
-* Use Radix UI primitives as the foundation when building new components
-* Follow the shadcn/ui component API patterns and conventions
-* Implement proper variant systems with sensible defaults
-* Support theming through CSS custom properties
-* Create components that integrate seamlessly with existing shadcn components
+- Extend existing shadcn components rather than rebuilding from scratch
+- Use Radix UI primitives as the foundation when building new components
+- Follow the shadcn/ui component API patterns and conventions
+- Implement proper variant systems with sensible defaults
+- Support theming through CSS custom properties
+- Create components that integrate seamlessly with existing shadcn components
 
 #### Component Patterns
 
-* Use composition over complex prop drilling
-* Implement proper error boundaries where needed
-* Create reusable sub-components for complex UI patterns
-* Use render props or compound components for flexible APIs
-* Implement proper loading and error states
-* Support controlled and uncontrolled component modes
+- Use composition over complex prop drilling
+- Implement proper error boundaries where needed
+- Create reusable sub-components for complex UI patterns
+- Use render props or compound components for flexible APIs
+- Implement proper loading and error states
+- Support controlled and uncontrolled component modes
 
 ### Response Protocol
 

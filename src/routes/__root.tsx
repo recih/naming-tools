@@ -1,5 +1,12 @@
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import {
+  createRootRoute,
+  HeadContent,
+  Link,
+  Outlet,
+  Scripts,
+} from '@tanstack/react-router'
 import { Heart, Search } from 'lucide-react'
+import type React from 'react'
 import { CharacterDetailPanel } from '@/components/CharacterDetailPanel'
 /// <reference types="vite/client" />
 import '@/index.css'
@@ -18,9 +25,27 @@ function NotFound() {
 }
 
 export const Route = createRootRoute({
+  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFound,
 })
+
+function RootShell({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="zh-CN">
+      <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>汉字偏旁查询工具</title>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  )
+}
 
 function RootComponent() {
   const { selectedCharacter } = useDetailPanelStore()
