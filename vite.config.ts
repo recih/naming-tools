@@ -1,6 +1,5 @@
 import { cloudflare } from '@cloudflare/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
-import { nitroV2Plugin } from '@tanstack/nitro-v2-vite-plugin'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tanstackRouter from '@tanstack/router-plugin/vite'
 import viteReact from '@vitejs/plugin-react'
@@ -15,7 +14,6 @@ export default defineConfig(({ mode }) => ({
       target: 'react',
       autoCodeSplitting: true,
     }),
-    nitroV2Plugin(),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
