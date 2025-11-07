@@ -30,6 +30,8 @@ Built with TanStack Start, React 18, TypeScript, and modern web technologies. De
 # Development
 pnpm install                              # Install dependencies
 git submodule update --init --recursive   # Initialize chinese-xinhua data submodule
+pnpm cf-typegen                           # Generate Cloudflare Workers type definitions (required before first run)
+pnpm r2-upload                            # Upload word.json to R2 bucket (required before first run)
 pnpm dev                                  # Start dev server (http://localhost:5173)
 
 # Code Quality
@@ -174,6 +176,18 @@ The application uses **file-based routing** with TanStack Router:
 - **Favorites persistence**: Uses the full `ChineseCharacter` object, not just the word string, persisted to localStorage with SSR-safe custom storage implementation.
 
 ## Development Workflow
+
+### First-Time Setup
+
+Before running the development server for the first time:
+
+1. **Install dependencies**: `pnpm install`
+2. **Initialize submodule**: `git submodule update --init --recursive`
+3. **Generate Cloudflare types**: `pnpm cf-typegen` (creates `worker-configuration.d.ts`)
+4. **Upload data to R2**: `pnpm r2-upload` or `pnpm r2-upload:local` for local development
+5. **Start dev server**: `pnpm dev`
+
+### Daily Development
 
 1. **Adding new routes**: Create files in `src/routes/` following TanStack Router conventions
 2. **Regenerating route types**: Run `pnpm exec tsr generate` after adding/modifying routes (auto-runs on dev server start)
