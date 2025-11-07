@@ -7,7 +7,7 @@ import { defineConfig } from 'vite'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   plugins: [
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
     tanstackRouter({

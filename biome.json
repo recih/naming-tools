@@ -16,7 +16,8 @@
       "!**/chinese-xinhua",
       "!**/tsconfig.json",
       "!**/tsconfig.*.json",
-      "!**/src/routeTree.gen.ts"
+      "!**/src/routeTree.gen.ts",
+      "!**/worker-configuration.d.ts"
     ]
   },
   "formatter": {

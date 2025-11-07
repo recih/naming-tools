@@ -26,7 +26,7 @@
   "r2_buckets": [
     {
       "binding": "WORD_DATA",
-      "bucket_name": "naming-tools-data",
+      "bucket_name": "naming-tools-data"
     }
   ]
 }
