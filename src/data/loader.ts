@@ -14,38 +14,57 @@ let charactersData: ChineseCharacter[] | null = null
 let radicalIndexData: RadicalIndex | null = null
 let allRadicalsData: string[] | null = null
 
+// Promise 缓存：避免并发调用时重复发起请求
+let loadingPromise: Promise<ChineseCharacter[]> | null = null
+let buildingRadicalIndexPromise: Promise<RadicalIndex> | null = null
+let loadingRadicalsPromise: Promise<string[]> | null = null
+
 /**
  * 加载汉字数据
  */
 export async function loadCharacters(): Promise<ChineseCharacter[]> {
+  // 1. 如果已有缓存数据，直接返回
   if (charactersData) {
     return charactersData
   }
 
-  try {
-    const response = await fetch('/api/word-json')
-    if (!response.ok) {
-      throw new Error(`Failed to load character data: ${response.statusText}`)
-    }
-    const rawData = (await response.json()) as ChineseCharacter[]
-
-    // 去重：某些汉字可能在数据源中重复
-    const seenWords = new Set<string>()
-    const uniqueData: ChineseCharacter[] = []
-
-    for (const char of rawData) {
-      if (!seenWords.has(char.word)) {
-        seenWords.add(char.word)
-        uniqueData.push(char)
-      }
-    }
-
-    charactersData = uniqueData
-    return charactersData
-  } catch (error) {
-    console.error('Error loading character data:', error)
-    return []
+  // 2. 如果正在加载中，返回同一个 Promise
+  if (loadingPromise) {
+    return loadingPromise
   }
+
+  // 3. 创建新的加载 Promise 并缓存
+  loadingPromise = (async () => {
+    try {
+      const response = await fetch('/api/word-json')
+      if (!response.ok) {
+        throw new Error(`Failed to load character data: ${response.statusText}`)
+      }
+      const rawData = (await response.json()) as ChineseCharacter[]
+
+      // 去重：某些汉字可能在数据源中重复
+      const seenWords = new Set<string>()
+      const uniqueData: ChineseCharacter[] = []
+
+      for (const char of rawData) {
+        if (!seenWords.has(char.word)) {
+          seenWords.add(char.word)
+          uniqueData.push(char)
+        }
+      }
+
+      charactersData = uniqueData
+      return charactersData
+    } catch (error) {
+      console.error('Error loading character data:', error)
+      return []
+    } finally {
+      // 4. 无论成功或失败，清除 loading 状态
+      loadingPromise = null
+    }
+  })()
+
+  return loadingPromise
 }
 
 /**
@@ -69,46 +88,78 @@ function getRadicals(char: string): string[] {
  * 一个汉字如果有多个部首，会被所有部首索引
  */
 export async function buildRadicalIndex(): Promise<RadicalIndex> {
+  // 1. 如果已有缓存数据，直接返回
   if (radicalIndexData) {
     return radicalIndexData
   }
 
-  const characters = await loadCharacters()
-  const index: RadicalIndex = {}
-
-  for (const char of characters) {
-    // 使用 cnchar 获取所有部首
-    const radicals = getRadicals(char.word)
-    if (radicals.length === 0) continue // 跳过没有部首的字
-
-    // 将字符添加到所有部首的索引中
-    for (const radical of radicals) {
-      if (!index[radical]) {
-        index[radical] = []
-      }
-      index[radical].push(char)
-    }
+  // 2. 如果正在构建中，返回同一个 Promise
+  if (buildingRadicalIndexPromise) {
+    return buildingRadicalIndexPromise
   }
 
-  radicalIndexData = index
-  return index
+  // 3. 创建新的构建 Promise 并缓存
+  buildingRadicalIndexPromise = (async () => {
+    try {
+      const characters = await loadCharacters()
+      const index: RadicalIndex = {}
+
+      for (const char of characters) {
+        // 使用 cnchar 获取所有部首
+        const radicals = getRadicals(char.word)
+        if (radicals.length === 0) continue // 跳过没有部首的字
+
+        // 将字符添加到所有部首的索引中
+        for (const radical of radicals) {
+          if (!index[radical]) {
+            index[radical] = []
+          }
+          index[radical].push(char)
+        }
+      }
+
+      radicalIndexData = index
+      return index
+    } finally {
+      // 4. 无论成功或失败，清除构建状态
+      buildingRadicalIndexPromise = null
+    }
+  })()
+
+  return buildingRadicalIndexPromise
 }
 
 /**
  * 获取所有部首列表（已排序）
  */
 export async function getAllRadicals(): Promise<string[]> {
+  // 1. 如果已有缓存数据，直接返回
   if (allRadicalsData) {
     return allRadicalsData
   }
 
-  const index = await buildRadicalIndex()
-  allRadicalsData = Object.keys(index).sort((a, b) => {
-    // 按照汉字的 Unicode 顺序排序
-    return a.localeCompare(b, 'zh-CN')
-  })
+  // 2. 如果正在加载中，返回同一个 Promise
+  if (loadingRadicalsPromise) {
+    return loadingRadicalsPromise
+  }
 
-  return allRadicalsData
+  // 3. 创建新的加载 Promise 并缓存
+  loadingRadicalsPromise = (async () => {
+    try {
+      const index = await buildRadicalIndex()
+      allRadicalsData = Object.keys(index).sort((a, b) => {
+        // 按照汉字的 Unicode 顺序排序
+        return a.localeCompare(b, 'zh-CN')
+      })
+
+      return allRadicalsData
+    } finally {
+      // 4. 无论成功或失败，清除加载状态
+      loadingRadicalsPromise = null
+    }
+  })()
+
+  return loadingRadicalsPromise
 }
 
 /**
