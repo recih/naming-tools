@@ -66,5 +66,6 @@
     "vitest": "^3.2.4",
     "web-vitals": "^5.1.0",
     "wrangler": "^4.46.0"
-  }
+  },
+  "packageManager": "pnpm@9.15.9+sha256.cf86a7ad764406395d4286a6d09d730711720acc6d93e9dce9ac7ac4dc4a28a7"
 }
