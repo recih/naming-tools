@@ -314,10 +314,12 @@ export function getStrokeCount(char: string): number {
  * 获取汉字的结构信息
  * @param char 单个汉字
  * @returns 结构描述（如"左右结构"）
+ * @deprecated structure 属性在 cnchar-info 类型定义中不存在，但可能在运行时可用
  */
 export function getCharacterStructure(char: string): string {
   try {
-    const result = cnchar.info(char)
+    // biome-ignore lint/suspicious/noExplicitAny: cnchar-info 类型定义不完整，structure 属性未在 IInfoResult 中定义
+    const result = cnchar.info(char) as any[]
     if (Array.isArray(result) && result.length > 0 && result[0].structure) {
       return result[0].structure
     }
