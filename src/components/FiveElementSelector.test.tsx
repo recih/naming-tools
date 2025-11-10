@@ -62,14 +62,16 @@ describe('FiveElementSelector', () => {
     vi.mocked(cnchar.info).mockReturnValue([{ fiveElement: '木' }] as any)
   })
 
-  it('should render all five elements', () => {
+  it('should render all five elements', async () => {
     render(<FiveElementSelector />)
 
-    expect(screen.getByText('金')).toBeInTheDocument()
-    expect(screen.getByText('木')).toBeInTheDocument()
-    expect(screen.getByText('水')).toBeInTheDocument()
-    expect(screen.getByText('火')).toBeInTheDocument()
-    expect(screen.getByText('土')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('金')).toBeInTheDocument()
+      expect(screen.getByText('木')).toBeInTheDocument()
+      expect(screen.getByText('水')).toBeInTheDocument()
+      expect(screen.getByText('火')).toBeInTheDocument()
+      expect(screen.getByText('土')).toBeInTheDocument()
+    })
   })
 
   it('should display element counts', async () => {
@@ -140,15 +142,21 @@ describe('FiveElementSelector', () => {
     expect(state.selectedFiveElements).toHaveLength(0)
   })
 
-  it('should show clear button only when elements are selected', () => {
+  it('should show clear button only when elements are selected', async () => {
     const { rerender } = render(<FiveElementSelector />)
 
-    expect(screen.queryByText('清空筛选')).not.toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.queryByText('清空筛选')).not.toBeInTheDocument()
+    })
 
-    useSearchStore.setState({ selectedFiveElements: ['木'] })
-    rerender(<FiveElementSelector />)
+    await waitFor(() => {
+      useSearchStore.setState({ selectedFiveElements: ['木'] })
+      rerender(<FiveElementSelector />)
+    })
 
-    expect(screen.getByText('清空筛选')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('清空筛选')).toBeInTheDocument()
+    })
   })
 
   it('should toggle collapsible when trigger clicked', async () => {
@@ -209,8 +217,12 @@ describe('FiveElementSelector', () => {
     expect(state.selectedFiveElements).not.toContain('木')
   })
 
-  it('should apply correct colors to element buttons', () => {
+  it('should apply correct colors to element buttons', async () => {
     render(<FiveElementSelector />)
+
+    await waitFor(() => {
+      expect(screen.getByText('金')).toBeInTheDocument()
+    })
 
     const elements = [
       { text: '金', colorClass: 'bg-amber-400' },

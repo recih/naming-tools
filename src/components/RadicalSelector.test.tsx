@@ -122,11 +122,13 @@ describe('RadicalSelector', () => {
     expect(state.selectedRadicals).toHaveLength(0)
   })
 
-  it('should show AND/OR mode toggle', () => {
+  it('should show AND/OR mode toggle', async () => {
     render(<RadicalSelector />)
 
-    expect(screen.getByText('OR')).toBeInTheDocument()
-    expect(screen.getByText('AND')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('OR')).toBeInTheDocument()
+      expect(screen.getByText('AND')).toBeInTheDocument()
+    })
   })
 
   it('should switch search mode when mode button clicked', async () => {
@@ -146,14 +148,16 @@ describe('RadicalSelector', () => {
     expect(state.searchMode).toBe('AND')
   })
 
-  it('should disable mode buttons when no radicals selected', () => {
+  it('should disable mode buttons when no radicals selected', async () => {
     render(<RadicalSelector />)
 
-    const orButton = screen.getByText('OR')
-    const andButton = screen.getByText('AND')
+    await waitFor(() => {
+      const orButton = screen.getByText('OR')
+      const andButton = screen.getByText('AND')
 
-    expect(orButton).toBeDisabled()
-    expect(andButton).toBeDisabled()
+      expect(orButton).toBeDisabled()
+      expect(andButton).toBeDisabled()
+    })
   })
 
   it('should filter radicals by pinyin input', async () => {

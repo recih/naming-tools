@@ -64,17 +64,21 @@ describe('FavoritesView', () => {
     vi.mocked(cnchar.info).mockReturnValue([{ fiveElement: '木' }] as any)
   })
 
-  it('should show empty state when no favorites', () => {
+  it('should show empty state when no favorites', async () => {
     render(<FavoritesView />)
 
-    expect(screen.getByText('还没有收藏任何汉字')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('还没有收藏任何汉字')).toBeInTheDocument()
+    })
   })
 
-  it('should render batch input textarea', () => {
+  it('should render batch input textarea', async () => {
     render(<FavoritesView />)
 
-    expect(screen.getByLabelText('批量添加汉字')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText(/输入或粘贴汉字/)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByLabelText('批量添加汉字')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/输入或粘贴汉字/)).toBeInTheDocument()
+    })
   })
 
   it('should add characters from text input', async () => {
@@ -178,27 +182,31 @@ describe('FavoritesView', () => {
     })
   })
 
-  it('should render favorites list', () => {
+  it('should render favorites list', async () => {
     useFavoritesStore.setState({
       favorites: [mockCharacters[0], mockCharacters[1]],
     })
 
     render(<FavoritesView />)
 
-    expect(screen.getAllByTestId('character-card')).toHaveLength(2)
-    expect(screen.getByText('好')).toBeInTheDocument()
-    expect(screen.getByText('木')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getAllByTestId('character-card')).toHaveLength(2)
+      expect(screen.getByText('好')).toBeInTheDocument()
+      expect(screen.getByText('木')).toBeInTheDocument()
+    })
   })
 
-  it('should show favorites count', () => {
+  it('should show favorites count', async () => {
     useFavoritesStore.setState({
       favorites: [mockCharacters[0], mockCharacters[1], mockCharacters[2]],
     })
 
     render(<FavoritesView />)
 
-    expect(screen.getByText('3')).toBeInTheDocument()
-    expect(screen.getByText(/个收藏/)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('3')).toBeInTheDocument()
+      expect(screen.getByText(/个收藏/)).toBeInTheDocument()
+    })
   })
 
   it('should clear all favorites when clear button clicked', async () => {
@@ -216,28 +224,32 @@ describe('FavoritesView', () => {
     expect(state.favorites).toHaveLength(0)
   })
 
-  it('should not show clear button when no favorites', () => {
+  it('should not show clear button when no favorites', async () => {
     render(<FavoritesView />)
 
-    expect(screen.queryByText('清空收藏')).not.toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.queryByText('清空收藏')).not.toBeInTheDocument()
+    })
   })
 
-  it('should render grid layout with correct classes', () => {
+  it('should render grid layout with correct classes', async () => {
     useFavoritesStore.setState({
       favorites: [mockCharacters[0]],
     })
 
     const { container } = render(<FavoritesView />)
 
-    const grid = container.querySelector('.grid')
-    expect(grid).toHaveClass(
-      'grid-cols-2',
-      'sm:grid-cols-3',
-      'md:grid-cols-4',
-      'lg:grid-cols-5',
-      'xl:grid-cols-6',
-      '2xl:grid-cols-8',
-    )
+    await waitFor(() => {
+      const grid = container.querySelector('.grid')
+      expect(grid).toHaveClass(
+        'grid-cols-2',
+        'sm:grid-cols-3',
+        'md:grid-cols-4',
+        'lg:grid-cols-5',
+        'xl:grid-cols-6',
+        '2xl:grid-cols-8',
+      )
+    })
   })
 
   it('should load characters on mount', async () => {
