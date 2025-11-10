@@ -24,6 +24,8 @@ Built with TanStack Start, React 18, TypeScript, and modern web technologies. De
 - **cnchar**: Chinese character processing library with radical, poly, and info plugins
 - **shadcn/ui**: Accessible component system built on Radix UI primitives
 - **Biome 2.2.4**: Fast formatter and linter (replaces ESLint/Prettier)
+- **Vitest 3.2.4**: Fast unit test framework with React Testing Library integration
+- **@vitest/coverage-v8**: Code coverage reporting tool
 
 ## Essential Commands
 
@@ -37,6 +39,12 @@ pnpm dev                                  # Start dev server (http://localhost:5
 
 # Code Quality
 pnpm check                                # Run Biome format and linting with fix
+
+# Testing
+pnpm test                                 # Run tests in watch mode
+pnpm test:run                             # Run tests once
+pnpm test:coverage                        # Run tests with coverage report
+pnpm test:ui                              # Run tests with Vitest UI
 
 # Build & Deploy
 pnpm build                                # Build for production
@@ -294,6 +302,72 @@ Key types defined in `src/types/index.ts`:
     [radical: string]: ChineseCharacter[];
   }
   ```
+
+## Testing
+
+### Test Framework
+
+The project uses **Vitest 3.2.4** with **React Testing Library** for comprehensive test coverage:
+
+- **Unit Tests**: Core business logic (data loaders, stores, utilities)
+- **Integration Tests**: Component interactions and user workflows
+- **SSR Safety Tests**: Server-side rendering boundary checks
+
+### Running Tests
+
+```bash
+pnpm test              # Watch mode for development
+pnpm test:run          # Run once (CI/CD)
+pnpm test:coverage     # Generate coverage report
+pnpm test:ui           # Vitest UI for debugging
+```
+
+### Coverage Targets
+
+Current coverage: **64.15%** (exceeds 60% target)
+
+- **src/data/loader.ts**: 94.33% - Core data processing logic
+- **src/stores**: 97.07% - State management (search, favorites, detail panel)
+- **src/lib/utils.ts**: 100% - Utility functions
+- **src/components**: 66.05% - UI components
+
+### Test Structure
+
+```
+src/
+├── test/
+│   ├── setup.ts          # Vitest configuration and global mocks
+│   ├── utils.tsx         # Custom render functions
+│   └── ssr.test.ts       # SSR boundary tests
+├── data/
+│   └── loader.test.ts    # Data loading and processing tests
+├── stores/
+│   ├── useSearchStore.test.ts
+│   ├── useFavoritesStore.test.ts
+│   └── useDetailPanelStore.test.ts
+├── lib/
+│   └── utils.test.ts
+└── components/
+    ├── CharacterCard.test.tsx
+    ├── RadicalSelector.test.tsx
+    ├── FiveElementSelector.test.tsx
+    ├── SearchResults.test.tsx
+    └── FavoritesView.test.tsx
+```
+
+### Test Configuration
+
+- **vitest.config.ts**: Test runner configuration with jsdom environment
+- **src/test/setup.ts**: Global test setup with mocked cnchar library and localStorage
+- **Coverage thresholds**: 60% for lines, functions, branches, and statements
+- **Excluded from coverage**: Routes, UI component libraries (shadcn/ui), generated files
+
+### Testing Best Practices
+
+- Mock cnchar library functions (`radical`, `info`, `spell`, `stroke`) in tests
+- Use `act()` for state updates in React components
+- Reset module cache between tests that depend on singleton state
+- Test SSR-safe patterns with `typeof window !== 'undefined'` checks
 
 ## File Structure
 
