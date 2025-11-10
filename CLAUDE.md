@@ -21,7 +21,7 @@ Built with TanStack Start, React 18, TypeScript, and modern web technologies. De
 - **Cloudflare Workers**: Serverless deployment platform via Wrangler 4.45.4
 - **Tailwind CSS v4**: Utility-first CSS framework using @tailwindcss/vite plugin
 - **Zustand**: Lightweight state management with localStorage persistence
-- **cnchar**: Chinese character processing library with radical, poly, and info plugins
+- **cnchar**: Chinese character processing library with radical, poly, and info plugins. Doc：<https://github.com/theajack/cnchar/raw/refs/heads/master/README.md>
 - **shadcn/ui**: Accessible component system built on Radix UI primitives
 - **Biome 2.2.4**: Fast formatter and linter (replaces ESLint/Prettier)
 - **Vitest 3.2.4**: Fast unit test framework with React Testing Library integration
