@@ -21,6 +21,7 @@ export default defineConfig({
         'src/test/',
         '**/*.config.*',
         '**/routeTree.gen.ts',
+        'src/components/ui/**/*.tsx',
         'src/main.tsx',
         'src/router.tsx',
         'src/routes/**',
