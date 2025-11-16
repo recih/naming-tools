@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import type { ChineseCharacter } from '@/types'
 import { useFavoritesStore } from './useFavoritesStore'
 

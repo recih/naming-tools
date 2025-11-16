@@ -1,8 +1,7 @@
 'use client'
 
 import { createFileRoute } from '@tanstack/react-router'
-import { FiveElementSelector } from '@/components/FiveElementSelector'
-import { RadicalSelector } from '@/components/RadicalSelector'
+import { FilterToolbar } from '@/components/FilterToolbar'
 import { SearchResults } from '@/components/SearchResults'
 
 export const Route = createFileRoute('/')({
@@ -11,10 +10,11 @@ export const Route = createFileRoute('/')({
 
 function SearchPage() {
   return (
-    <div className="space-y-6">
-      <RadicalSelector />
-      <FiveElementSelector />
-      <SearchResults />
+    <div className="flex flex-col h-full">
+      <FilterToolbar />
+      <div className="flex-1 overflow-y-auto p-4">
+        <SearchResults />
+      </div>
     </div>
   )
 }

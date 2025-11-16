@@ -2,15 +2,11 @@ import cnchar from 'cnchar'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ChineseCharacter } from '@/types'
 import {
-  buildRadicalIndex,
   filterByFiveElements,
-  getAllRadicals,
   getCharacterStructure,
   getFiveElement,
   getFiveElementCounts,
   getStrokeCount,
-  loadCharacters,
-  searchByRadicals,
 } from './loader'
 
 // Mock data for testing

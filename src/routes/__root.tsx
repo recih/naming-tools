@@ -5,11 +5,24 @@ import {
   Outlet,
   Scripts,
 } from '@tanstack/react-router'
-import { Heart, Search } from 'lucide-react'
+import { Heart, Search, Settings } from 'lucide-react'
 import type React from 'react'
 import { CharacterDetailPanel } from '@/components/CharacterDetailPanel'
 /// <reference types="vite/client" />
 import '@/index.css'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+} from '@/components/ui/sidebar'
 import { useDetailPanelStore } from '@/stores/useDetailPanelStore'
 
 function NotFound() {
@@ -51,54 +64,64 @@ function RootComponent() {
   const { selectedCharacter } = useDetailPanelStore()
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
-      <header className="border-b bg-card flex-shrink-0">
-        <div className="container mx-auto py-6 px-4">
-          <h1 className="text-3xl font-bold">汉字偏旁与五行查询工具</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            根据偏旁部首和五行属性查找汉字
-          </p>
-        </div>
-      </header>
+    <SidebarProvider>
+      <div className="flex h-screen w-full">
+        <Sidebar>
+          <SidebarHeader>
+            <div className="px-2 py-4">
+              <h1 className="text-lg font-bold">汉字查询工具</h1>
+              <p className="text-xs text-muted-foreground mt-1">
+                偏旁部首与五行属性
+              </p>
+            </div>
+          </SidebarHeader>
 
-      <div className="flex flex-1 overflow-hidden min-h-0">
-        {/* 主内容区 */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto py-6 px-4">
-            {/* 导航栏 */}
-            <nav className="mb-6">
-              <div className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground">
-                <Link
-                  to="/"
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-2 [&.active]:bg-background [&.active]:text-foreground [&.active]:shadow"
-                  activeProps={{
-                    className: 'bg-background text-foreground shadow',
-                  }}
-                >
-                  <Search className="h-4 w-4" />
-                  搜索
-                </Link>
-                <Link
-                  to="/favorites"
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-2 [&.active]:bg-background [&.active]:text-foreground [&.active]:shadow"
-                  activeProps={{
-                    className: 'bg-background text-foreground shadow',
-                  }}
-                >
-                  <Heart className="h-4 w-4" />
-                  收藏
-                </Link>
-              </div>
-            </nav>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={false}>
+                      <Link to="/">
+                        <Search className="h-4 w-4" />
+                        <span>搜索</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={false}>
+                      <Link to="/favorites">
+                        <Heart className="h-4 w-4" />
+                        <span>收藏</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
 
-            {/* 路由内容 */}
+          <SidebarFooter>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton>
+                  <Settings className="h-4 w-4" />
+                  <span>设置</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        </Sidebar>
+
+        <SidebarInset className="flex flex-1 overflow-hidden">
+          <main className="flex flex-col flex-1 overflow-hidden">
             <Outlet />
-          </div>
-        </main>
+          </main>
 
-        {/* 详情面板 - 仅在选中字符时显示 */}
-        {selectedCharacter && <CharacterDetailPanel />}
+          {/* 详情面板 - 仅在选中字符时显示 */}
+          {selectedCharacter && <CharacterDetailPanel />}
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   )
 }
